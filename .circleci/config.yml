@@ -1,35 +1,59 @@
-version: 2.1 # YML 2.1
+version: 2.1
+jobs:
+  build_frontend:
+    docker:
+      - image: cimg/node:16.13
+    working_directory: ~/CRUD-app/crud-todos
+    steps:
+      - checkout
+      - run:
+          name: Install Frontend Dependencies
+          command: npm install
+      - run:
+          name: Build Frontend
+          command: npm run build
+      - persist_to_workspace:
+          root: ~/CRUD-app/crud-todos
+          paths:
+            - build
+
+  build_backend:
+    docker:
+      - image: cimg/node:16.13
+    working_directory: ~/CRUD-app/crud-todos-backend
+    steps:
+      - checkout
+      - run:
+          name: Install Backend Dependencies
+          command: npm install
+      - persist_to_workspace:
+          root: ~/CRUD-app/crud-todos-backend
+          paths:
+            - .
+
+  deploy:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - attach_workspace:
+          at: ~/CRUD-app
+      - run:
+          name: Deploy Frontend to EC2
+          command: |
+            scp -r ~/CRUD-app/crud-todos/build ubuntu@51.20.123.183:/var/www/html/
+            ssh -o StrictHostKeyChecking=no ubuntu@51.20.123.183 "sudo systemctl restart nginx"
+      - run:
+          name: Deploy Backend to EC2
+          command: |
+            scp -r ~/CRUD-app/crud-todos-backend/* ubuntu@51.20.123.183:~/crud-todos-backend/
+            ssh -o StrictHostKeyChecking=no ubuntu@51.20.123.183 "cd ~/crud-todos-backend && npm install && pm2 restart app || pm2 start app.js"
 
 workflows:
-  version: 2 # CircleCI 2
-  build:
+  build-and-deploy:
     jobs:
-      - build: # Tasks we want CircleCI to execute (CI)
-          filters:
-            branches:
-              only: main  # Run CI only on the main branch
-
-jobs:
-  build:  # What happens in our build job
-    working_directory: ~/ProjectPart2/CRUD-app
-    docker:
-      - image: circleci/node:16  # Version of node js
-    steps:
-      - checkout # Clone GitHub repository
-      - run:
-          name: Update npm # version of npm
-          command: 'npm install npm@8'  # Install locally without global update
-      - restore_cache:
-          key: dependency-cache-{{ checksum "package-lock.json" }}  # Restore dependencies 
-      - run:
-          name: Install npm dependencies
-          command: npm install # Install dependencies 
-      - run:
-          name: Build Application
-          command: npm run build  # Build the React application
-        
-      - save_cache:
-          key: dependency-cache-{{ checksum "package-lock.json" }}
-          paths:
-            - ./node_modules
-
+      - build_frontend
+      - build_backend
+      - deploy:
+          requires:
+            - build_frontend
+            - build_backend
