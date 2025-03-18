@@ -46,7 +46,7 @@ jobs:
           name: Deploy Backend to EC2
           command: |
             scp -r ~/CRUD-app/crud-todos-backend/* ubuntu@51.20.123.183:~/crud-todos-backend/
-            ssh -o StrictHostKeyChecking=no ubuntu@51.20.123.183 "cd ~/crud-todos-backend && npm install && pm2 restart app || pm2 start app.js"
+            ssh -o StrictHostKeyChecking=no ubuntu@51.20.123.183 "cd ~/crud-todos-backend && npm install && pm2 restart bin/www || pm2 start bin/www"
 
 workflows:
   build-and-deploy:
