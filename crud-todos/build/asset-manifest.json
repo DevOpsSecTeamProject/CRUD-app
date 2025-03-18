@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/DevOpsGroupCA/DevOpsApplication/static/css/main.d5f97150.css",
+    "main.js": "/DevOpsGroupCA/DevOpsApplication/static/js/main.a0d6fce8.js",
+    "static/js/453.b1137085.chunk.js": "/DevOpsGroupCA/DevOpsApplication/static/js/453.b1137085.chunk.js",
+    "index.html": "/DevOpsGroupCA/DevOpsApplication/index.html",
+    "main.d5f97150.css.map": "/DevOpsGroupCA/DevOpsApplication/static/css/main.d5f97150.css.map",
+    "main.a0d6fce8.js.map": "/DevOpsGroupCA/DevOpsApplication/static/js/main.a0d6fce8.js.map",
+    "453.b1137085.chunk.js.map": "/DevOpsGroupCA/DevOpsApplication/static/js/453.b1137085.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.d5f97150.css",
+    "static/js/main.a0d6fce8.js"
+  ]
+}
