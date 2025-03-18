@@ -1,5 +1,6 @@
 version: 2.1
 jobs:
+#building frontend
   build_frontend:
     docker:
       - image: cimg/node:16.13
@@ -16,7 +17,7 @@ jobs:
           root: ~/CRUD-app/crud-todos
           paths:
             - build
-
+#building backend 
   build_backend:
     docker:
       - image: cimg/node:16.13
