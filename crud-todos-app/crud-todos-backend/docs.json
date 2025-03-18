@@ -1,0 +1,50 @@
+{
+	"openapi": "3.0.0",
+	"info": {
+		"title": "Todo Backend Docs",
+		"version": "1.0.0",
+		"port": 8080
+	},
+	"paths": {
+		"/": {
+			/* create */
+			"post": {
+				"description": "Task required in the body of the request e.g., {task: 'Walk the cat'}",
+				"responses": {
+					"201": {
+						"description": "Returns a blank object."
+					}
+				}
+			},
+			/* read */
+			"get": {
+				"description": "No inputs required",
+				"responses": {
+					"200": {
+						"description": "Returns an object of todos."
+					}
+				}
+			},
+			/* update */
+			"put": {
+				"description": "ID and task required in the body of the request e.g., {todo_id: 1, task: 'Get food'}",
+				"responses": {
+					"204": {
+						"description": "Returns a blank object."
+					}
+				}
+			},
+			/* delete */
+			"delete": {
+				"description": "ID data required in the body of the request e.g., {data: {todo_id: 1}}",
+				"responses": {
+					"204": {
+						"description": "Returns a blank object."
+					}
+				}
+			}
+		}
+	},
+	"components": {},
+	"tags": []
+}
