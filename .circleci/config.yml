@@ -1,12 +1,14 @@
 version: 2.1
 jobs:
-#building frontend
   build_frontend:
     docker:
       - image: cimg/node:16.13
     working_directory: ~/CRUD-app/crud-todos
     steps:
       - checkout
+      - run:
+          name: Debug - List files in crud-todos
+          command: ls -la
       - run:
           name: Install Frontend Dependencies
           command: npm install
@@ -17,13 +19,16 @@ jobs:
           root: ~/CRUD-app/crud-todos
           paths:
             - build
-#building backend 
+
   build_backend:
     docker:
       - image: cimg/node:16.13
     working_directory: ~/CRUD-app/crud-todos-backend
     steps:
       - checkout
+      - run:
+          name: Debug - List files in crud-todos-backend
+          command: ls -la
       - run:
           name: Install Backend Dependencies
           command: npm install
