@@ -32,36 +32,34 @@ function TodosList(params) {
     async function handleUpdate(e, id) {
         e.preventDefault();
         setUpdateText("");
-        await axios.put("http://localhost:8080/", { todo_id: id, task: updateText });
+        await axios.put("/api/todos", { todo_id: id, task: updateText });
         await getTodos();
     }
 
     async function handleDelete(e, id) {
         e.preventDefault();
-        await axios.delete("http://localhost:8080/", { data: { todo_id: id } });
+        await axios.delete("/api/todos", { data: { todo_id: id } });
         await getTodos();
     }
 
     function handleEdit(e, id) {
         e.preventDefault();
-        var todos_arr = [...todos]
+        var todos_arr = [...todos];
         var index = todos_arr.indexOf(todos_arr.find(function (todo) {
-            return todo.id === id
+            return todo.id === id;
         }));
         todos_arr[index].isInEditingMode = true;
         setUpdateText(todos_arr[index].text);
     }
-
 
     //create
     async function handleSubmit(e) {
         e.preventDefault();
         setText("");
         setBtnAddDisabled(true);
-        await axios.post("http://localhost:8080/", { task: text });
+        await axios.post("/api/todos", { task: text });
         await getTodos();
     }
-
 
     //read
     useEffect(() => {
@@ -69,16 +67,16 @@ function TodosList(params) {
     }, []);
 
     const getTodos = async function () {
-        var data = await axios.get("http://localhost:8080");
+        var data = await axios.get("/api/todos");
         var formattedData = data.data.todos.map(function (todo) {
             return {
                 text: todo.task,
                 id: todo.id,
                 isInEditingMode: false
-            }
+            };
         });
         setTodos(formattedData);
-    }
+    };
 
     return (
         <div>
@@ -90,7 +88,6 @@ function TodosList(params) {
                         return (
                             <li key={index}>
                                 <Todo todo={todos[index]} handleUpdateText={handleUpdateText} updateText={updateText} />
-
                                 <button onClick={function (e) {
                                     handleUpdate(e, i.id);
                                 }} disabled={btnEditDisabled}>Done updating</button>
@@ -100,11 +97,9 @@ function TodosList(params) {
                         return (
                             <li key={index}>
                                 <Todo todo={todos[index]} handleUpdateText={handleUpdateText} updateText={updateText} />
-
                                 <button onClick={function (e) {
                                     handleDelete(e, i.id);
                                 }}>Delete</button>
-
                                 <button onClick={function (e) {
                                     handleEdit(e, i.id);
                                 }}>Update Todo</button>
