@@ -8,7 +8,7 @@ function TodosList(params) {
     const [updateText, setUpdateText] = useState("");
     const [btnAddDisabled, setBtnAddDisabled] = useState(true);
     const [btnEditDisabled, setBtnEditDisabled] = useState(false);
-    const [error, setError] = useState(""); 
+    const [error, setError] = useState("");
 
     function handleInput(e) {
         e.preventDefault();
@@ -34,7 +34,7 @@ function TodosList(params) {
         e.preventDefault();
         try {
             setUpdateText("");
-            await axios.put("https://16.171.68.89", { todo_id: id, task: updateText });
+            await axios.put("https://16.171.68.89/api", { todo_id: id, task: updateText });
             await getTodos();
         } catch (err) {
             setError("Failed to update todo: " + err.message);
@@ -44,7 +44,7 @@ function TodosList(params) {
     async function handleDelete(e, id) {
         e.preventDefault();
         try {
-            await axios.delete("https://16.171.68.89", { data: { todo_id: id } });
+            await axios.delete("https://16.171.68.89/api", { data: { todo_id: id } });
             await getTodos();
         } catch (err) {
             setError("Failed to delete todo: " + err.message);
@@ -68,7 +68,7 @@ function TodosList(params) {
         try {
             setText("");
             setBtnAddDisabled(true);
-            const response = await axios.post("https://16.171.68.89", { task: text });
+            const response = await axios.post("https://16.171.68.89/api", { task: text });
             console.log("POST response:", response.status, response.data);
             await getTodos();
         } catch (err) {
@@ -84,11 +84,11 @@ function TodosList(params) {
     const getTodos = async function () {
         try {
             console.log("Fetching todos...");
-            var data = await axios.get("https://16.171.68.89");
+            var data = await axios.get("https://16.171.68.89/api");
             console.log("GET response:", data.data);
             if (!data.data.todos || !Array.isArray(data.data.todos)) {
                 console.log("No todos found or invalid format:", data.data);
-                setTodos([]); 
+                setTodos([]);
                 setError("");
                 return;
             }
@@ -109,7 +109,7 @@ function TodosList(params) {
 
     return (
         <div>
-            {error && <div style={{ color: "red" }}>{error}</div>} {}
+            {error && <div style={{ color: "red" }}>{error}</div>}
             <input value={text} onChange={handleInput} />
             <button onClick={handleSubmit} disabled={btnAddDisabled}>Add Todo</button>
             <ul>
