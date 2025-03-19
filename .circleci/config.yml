@@ -23,16 +23,13 @@ jobs:
           at: .
       - add_ssh_keys:
           fingerprints:
-            - "12:34:56:78:90"
+            - SHA256:1m5OosxpQ/CFVCCcVXsD49TO13ZzZQPxnEBkNZyscUY
       - run:
           name: Deploy to EC2
           command: |
-            ssh -o StrictHostKeyChecking=no ubuntu@16.171.68.89 << 'EOF'
-              mkdir -p /home/ubuntu/crud-app
-              exit
-            EOF
+            ssh -o StrictHostKeyChecking=no ubuntu@16.171.68.89 "mkdir -p /home/ubuntu/crud-app"
             scp -r -o StrictHostKeyChecking=no ./* ubuntu@16.171.68.89:/home/ubuntu/crud-app/
-            ssh -o StrictHostKeyChecking=no ubuntu@16.171.68.89 "/home/ubuntu/deploy.sh"
+            ssh -o StrictHostKeyChecking=no ubuntu@16.171.68.89 "cd /home/ubuntu/crud-app && git pull origin main && npm install && pm2 restart www || pm2 start www.js --name www"
 workflows:
   build-and-deploy:
     jobs:
