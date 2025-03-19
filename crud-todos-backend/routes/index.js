@@ -2,6 +2,15 @@ var express = require('express');
 var router = express.Router();
 var sqlite = require("better-sqlite3");
 
+const db = new sqlite('database.db', { verbose: console.log });
+
+
+db.prepare(`
+    CREATE TABLE IF NOT EXISTS todos (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        task VARCHAR(255)
+    )
+`).run();
 
 /** create
  * @openapi
@@ -13,15 +22,15 @@ var sqlite = require("better-sqlite3");
  *         description: Returns a blank object.
  */
 router.post('/', function (req, res, next) {
-  try {
-      console.log("Received POST request with task:", req.body.task); 
-      db.prepare('INSERT INTO todos (task) VALUES (?)').run(req.body.task);
-      console.log("Task inserted successfully"); 
-      res.status(201).json({});
-  } catch (err) {
-      console.error("Error inserting task:", err.message); 
-      next(err);
-  }
+    try {
+        console.log("Received POST request with task:", req.body.task);
+        db.prepare('INSERT INTO todos (task) VALUES (?)').run(req.body.task);
+        console.log("Task inserted successfully");
+        res.status(201).json({});
+    } catch (err) {
+        console.error("Error inserting task:", err.message);
+        res.status(500).json({ error: "Failed to insert task" });
+    }
 });
 
 /** read
@@ -34,11 +43,16 @@ router.post('/', function (req, res, next) {
  *         description: Returns an object of todos.
  */
 router.get('/', function (req, res, next) {
-  var db = new sqlite('database.db');
-  var todos = db.prepare("SELECT * FROM todos").all();
-  res.json({ todos: todos })
+    try {
+        console.log("Fetching todos from database...");
+        var todos = db.prepare("SELECT * FROM todos").all();
+        console.log("Todos fetched:", todos);
+        res.json({ todos: todos });
+    } catch (err) {
+        console.error("Error fetching todos:", err.message);
+        res.status(500).json({ error: "Failed to fetch todos" });
+    }
 });
-
 
 /** update
  * @openapi
@@ -50,10 +64,15 @@ router.get('/', function (req, res, next) {
  *         description: Returns a blank object.
  */
 router.put('/', function (req, res, next) {
-  var db = new sqlite('database.db');
-  console.log(req.body)
-  db.prepare('UPDATE todos SET task = ? where id = (?)').run(req.body.task, req.body.todo_id);
-  res.status(204).json({})
+    try {
+        console.log("Received PUT request with body:", req.body);
+        db.prepare('UPDATE todos SET task = ? WHERE id = ?').run(req.body.task, req.body.todo_id);
+        console.log("Task updated successfully");
+        res.status(204).json({});
+    } catch (err) {
+        console.error("Error updating task:", err.message);
+        res.status(500).json({ error: "Failed to update task" });
+    }
 });
 
 /** delete
@@ -66,9 +85,17 @@ router.put('/', function (req, res, next) {
  *         description: Returns a blank object.
  */
 router.delete('/', function (req, res, next) {
-  var db = new sqlite('database.db');
-  db.prepare('DELETE FROM todos where id = (?)').run(req.body.todo_id);
-  res.status(204).json({})
+    try {
+        // Виправлення: Отримуємо todo_id із req.body.data.todo_id
+        const todoId = req.body.data ? req.body.data.todo_id : req.body.todo_id;
+        console.log("Received DELETE request with todo_id:", todoId);
+        db.prepare('DELETE FROM todos WHERE id = ?').run(todoId);
+        console.log("Task deleted successfully");
+        res.status(204).json({});
+    } catch (err) {
+        console.error("Error deleting task:", err.message);
+        res.status(500).json({ error: "Failed to delete task" });
+    }
 });
 
 module.exports = router;

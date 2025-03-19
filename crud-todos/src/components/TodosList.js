@@ -86,6 +86,12 @@ function TodosList(params) {
             console.log("Fetching todos...");
             var data = await axios.get("https://16.171.68.89");
             console.log("GET response:", data.data);
+            if (!data.data.todos || !Array.isArray(data.data.todos)) {
+                console.log("No todos found or invalid format:", data.data);
+                setTodos([]); 
+                setError("");
+                return;
+            }
             var formattedData = data.data.todos.map(function (todo) {
                 return {
                     text: todo.task,
@@ -93,9 +99,9 @@ function TodosList(params) {
                     isInEditingMode: false
                 };
             });
-            console.log("Formatted todos:", formattedData); 
+            console.log("Formatted todos:", formattedData);
             setTodos(formattedData);
-            setError(""); 
+            setError("");
         } catch (err) {
             setError("Failed to fetch todos: " + err.message);
         }
