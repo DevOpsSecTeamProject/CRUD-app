@@ -32,13 +32,13 @@ function TodosList(params) {
     async function handleUpdate(e, id) {
         e.preventDefault();
         setUpdateText("");
-        await axios.put("http://localhost:8080/", { todo_id: id, task: updateText });
+        await axios.put("https://16.171.68.89", { todo_id: id, task: updateText });
         await getTodos();
     }
 
     async function handleDelete(e, id) {
         e.preventDefault();
-        await axios.delete("http://localhost:8080/", { data: { todo_id: id } });
+        await axios.delete("https://16.171.68.89", { data: { todo_id: id } });
         await getTodos();
     }
 
@@ -58,7 +58,7 @@ function TodosList(params) {
         e.preventDefault();
         setText("");
         setBtnAddDisabled(true);
-        await axios.post("http://localhost:8080/", { task: text });
+        await axios.post("https://16.171.68.89", { task: text });
         await getTodos();
     }
 
@@ -69,7 +69,7 @@ function TodosList(params) {
     }, []);
 
     const getTodos = async function () {
-        var data = await axios.get("http://localhost:8080");
+        var data = await axios.get("https://16.171.68.89");
         var formattedData = data.data.todos.map(function (todo) {
             return {
                 text: todo.task,
