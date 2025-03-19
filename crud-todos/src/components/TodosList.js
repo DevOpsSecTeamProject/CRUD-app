@@ -56,10 +56,16 @@ function TodosList(params) {
     //create
     async function handleSubmit(e) {
         e.preventDefault();
-        setText("");
-        setBtnAddDisabled(true);
-        await axios.post("https://16.171.68.89", { task: text });
-        await getTodos();
+        console.log("Submitting new todo with text:", text); 
+        try {
+            setText("");
+            setBtnAddDisabled(true);
+            const response = await axios.post("https://16.171.68.89", { task: text });
+            console.log("POST response:", response.status, response.data);
+            await getTodos();
+        } catch (err) {
+            setError("Failed to add todo: " + err.message);
+        }
     }
 
 
@@ -69,16 +75,23 @@ function TodosList(params) {
     }, []);
 
     const getTodos = async function () {
-        var data = await axios.get("https://16.171.68.89");
-        var formattedData = data.data.todos.map(function (todo) {
-            return {
-                text: todo.task,
-                id: todo.id,
-                isInEditingMode: false
-            }
-        });
-        setTodos(formattedData);
-    }
+        try {
+            console.log("Fetching todos..."); 
+            var data = await axios.get("https://16.171.68.89");
+            console.log("GET response:", data.data); 
+            var formattedData = data.data.todos.map(function (todo) {
+                return {
+                    text: todo.task,
+                    id: todo.id,
+                    isInEditingMode: false
+                };
+            });
+            setTodos(formattedData);
+            setError(null);
+        } catch (err) {
+            setError("Failed to fetch todos: " + err.message);
+        }
+    };
 
     return (
         <div>

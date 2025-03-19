@@ -13,9 +13,15 @@ var sqlite = require("better-sqlite3");
  *         description: Returns a blank object.
  */
 router.post('/', function (req, res, next) {
-  var db = new sqlite('database.db');
-  db.prepare('INSERT INTO todos (task) VALUES (?)').run(req.body.task);
-  res.status(201).json({})
+  try {
+      console.log("Received POST request with task:", req.body.task); 
+      db.prepare('INSERT INTO todos (task) VALUES (?)').run(req.body.task);
+      console.log("Task inserted successfully"); 
+      res.status(201).json({});
+  } catch (err) {
+      console.error("Error inserting task:", err.message); 
+      next(err);
+  }
 });
 
 /** read
