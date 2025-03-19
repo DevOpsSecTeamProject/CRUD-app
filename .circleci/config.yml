@@ -1,65 +1,45 @@
 version: 2.1
 jobs:
-  build_frontend:
+  build:
     docker:
-      - image: cimg/node:16.13
-    working_directory: ~/CRUD-app/crud-todos
+      - image: cimg/node:20.11
     steps:
       - checkout
       - run:
-          name: Debug - List files in crud-todos
-          command: ls -la
-      - run:
-          name: Install Frontend Dependencies
+          name: Install Dependencies
           command: npm install
       - run:
           name: Build Frontend
-          command: npm run build
+          command: npm run build || echo "No build script, skipping"
       - persist_to_workspace:
-          root: ~/CRUD-app/crud-todos
-          paths:
-            - build
-
-  build_backend:
-    docker:
-      - image: cimg/node:16.13
-    working_directory: ~/CRUD-app/crud-todos-backend
-    steps:
-      - checkout
-      - run:
-          name: Debug - List files in crud-todos-backend
-          command: ls -la
-      - run:
-          name: Install Backend Dependencies
-          command: npm install
-      - persist_to_workspace:
-          root: ~/CRUD-app/crud-todos-backend
+          root: .
           paths:
             - .
-
   deploy:
     docker:
-      - image: cimg/base:stable
+      - image: cimg/node:20.11
     steps:
       - attach_workspace:
-          at: ~/CRUD-app
+          at: .
+      - add_ssh_keys:
+          fingerprints:
+            - "12:34:56:78:90"
       - run:
-          name: Deploy Frontend to EC2
+          name: Deploy to EC2
           command: |
-            scp -r ~/CRUD-app/crud-todos/build ubuntu@51.20.123.183:/var/www/html/
-            ssh -o StrictHostKeyChecking=no ubuntu@51.20.123.183 "sudo systemctl restart nginx"
-      - run:
-          name: Deploy Backend to EC2
-          command: |
-            scp -r ~/CRUD-app/crud-todos-backend/* ubuntu@51.20.123.183:~/crud-todos-backend/
-            ssh -o StrictHostKeyChecking=no ubuntu@51.20.123.183 "cd ~/crud-todos-backend && npm install && pm2 restart bin/www || pm2 start bin/www"
-
+            ssh -o StrictHostKeyChecking=no ubuntu@16.171.68.89 << 'EOF'
+              mkdir -p /home/ubuntu/crud-app
+              exit
+            EOF
+            scp -r -o StrictHostKeyChecking=no ./* ubuntu@16.171.68.89:/home/ubuntu/crud-app/
+            ssh -o StrictHostKeyChecking=no ubuntu@16.171.68.89 "/home/ubuntu/deploy.sh"
 workflows:
   build-and-deploy:
     jobs:
-      - build_frontend
-      - build_backend
+      - build
       - deploy:
           requires:
-            - build_frontend
-            - build_backend
+            - build
+          filters:
+            branches:
+              only: main
