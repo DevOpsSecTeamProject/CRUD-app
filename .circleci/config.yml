@@ -6,15 +6,25 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install Dependencies
-          command: npm install
+          name: Install Frontend Dependencies
+          command: |
+            cd crud-todos
+            npm install
       - run:
           name: Build Frontend
-          command: npm run build || echo "No build script, skipping"
+          command: |
+            cd crud-todos
+            npm run build || echo "No build script, skipping"
+      - run:
+          name: Install Backend Dependencies
+          command: |
+            cd crud-todos-backend
+            npm install
       - persist_to_workspace:
           root: .
           paths:
-            - .
+            - crud-todos
+            - crud-todos-backend
   deploy:
     docker:
       - image: cimg/node:20.11
@@ -23,13 +33,15 @@ jobs:
           at: .
       - add_ssh_keys:
           fingerprints:
-            - SHA256:1m5OosxpQ/CFVCCcVXsD49TO13ZzZQPxnEBkNZyscUY
+            - "SHA256:1m5OosxpQ/CFVCCcVXsD49TO13ZzZQPxnEBkNZyscUY"
       - run:
           name: Deploy to EC2
           command: |
-            ssh -o StrictHostKeyChecking=no ubuntu@16.171.68.89 "mkdir -p /home/ubuntu/crud-app"
-            scp -r -o StrictHostKeyChecking=no ./* ubuntu@16.171.68.89:/home/ubuntu/crud-app/
-            ssh -o StrictHostKeyChecking=no ubuntu@16.171.68.89 "cd /home/ubuntu/crud-app && git pull origin main && npm install && pm2 restart www || pm2 start www.js --name www"
+            ssh -o StrictHostKeyChecking=no ubuntu@16.171.68.89 "mkdir -p /home/ubuntu/crud-app/crud-todos"
+            ssh -o StrictHostKeyChecking=no ubuntu@16.171.68.89 "mkdir -p /home/ubuntu/crud-app/crud-todos-backend"
+            scp -r -o StrictHostKeyChecking=no ./crud-todos/* ubuntu@16.171.68.89:/home/ubuntu/crud-app/crud-todos/
+            scp -r -o StrictHostKeyChecking=no ./crud-todos-backend/* ubuntu@16.171.68.89:/home/ubuntu/crud-app/crud-todos-backend/
+            ssh -o StrictHostKeyChecking=no ubuntu@16.171.68.89 "cd /home/ubuntu/crud-app/crud-todos-backend && git pull origin main && npm install && pm2 restart www || pm2 start app.js --name www"
 workflows:
   build-and-deploy:
     jobs:
