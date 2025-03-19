@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+  </head>
+  <body>
+    <h1><%= title %></h1>
+    <h2>Add new Todo</h2>
+    <form action="/add" method="post">
+      <input type="text" name="task">
+      <button type="submit">Submit</button>
+    </form>
+    <br>
+
+    
+    <h2>Todos </h2>
+    <% for(var i=0; i < todos.length; i++) { %>
+        
+        <form action="/delete" method="get">
+          <input type="hidden" name="todo_id" value="<%= todos[i].id %>">
+          <%= todos[i].task %> <a href="edit?todo_id=<%= todos[i].id %>">Edit todo</a>
+          <button type="submit">delete <%= todos[i].task %></button>
+        </form>
+        <br>
+      
+   <% } %>
+    
+
+  </body>
+</html>

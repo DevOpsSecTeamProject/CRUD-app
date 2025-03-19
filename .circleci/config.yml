@@ -1,0 +1,45 @@
+version: 2.1
+jobs:
+  build:
+    docker:
+      - image: cimg/node:20.11
+    steps:
+      - checkout
+      - run:
+          name: Install Dependencies
+          command: npm install
+      - run:
+          name: Build Frontend
+          command: npm run build || echo "No build script, skipping"
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .
+  deploy:
+    docker:
+      - image: cimg/node:20.11
+    steps:
+      - attach_workspace:
+          at: .
+      - add_ssh_keys:
+          fingerprints:
+            - "12:34:56:78:90"
+      - run:
+          name: Deploy to EC2
+          command: |
+            ssh -o StrictHostKeyChecking=no ubuntu@16.171.68.89 << 'EOF'
+              mkdir -p /home/ubuntu/crud-app
+              exit
+            EOF
+            scp -r -o StrictHostKeyChecking=no ./* ubuntu@16.171.68.89:/home/ubuntu/crud-app/
+            ssh -o StrictHostKeyChecking=no ubuntu@16.171.68.89 "/home/ubuntu/deploy.sh"
+workflows:
+  build-and-deploy:
+    jobs:
+      - build
+      - deploy:
+          requires:
+            - build
+          filters:
+            branches:
+              only: main
