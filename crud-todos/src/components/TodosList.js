@@ -2,136 +2,141 @@ import axios from "axios";
 import { useState, useEffect } from "react";
 import Todo from "./Todo";
 
-function TodosList() {
+function TodosList(params) {
     const [todos, setTodos] = useState([]);
     const [text, setText] = useState("");
     const [updateText, setUpdateText] = useState("");
     const [btnAddDisabled, setBtnAddDisabled] = useState(true);
     const [btnEditDisabled, setBtnEditDisabled] = useState(false);
+    const [error, setError] = useState("");
 
-    // Handle input for adding new todo
-    const handleInput = (e) => {
+    function handleInput(e) {
         e.preventDefault();
         setText(e.target.value);
-        setBtnAddDisabled(e.target.value.length === 0);
-    };
+        if (e.target.value.length > 0) {
+            setBtnAddDisabled(false);
+        } else {
+            setBtnAddDisabled(true);
+        }
+    }
 
-    // Handle input for updating todo
-    const handleUpdateText = (e) => {
+    function handleUpdateText(e) {
         e.preventDefault();
         setUpdateText(e.target.value);
-        setBtnEditDisabled(e.target.value.length === 0);
-    };
+        if (e.target.value.length > 0) {
+            setBtnEditDisabled(false);
+        } else {
+            setBtnEditDisabled(true);
+        }
+    }
 
-    // Update todo
-    const handleUpdate = async (e, id) => {
+    async function handleUpdate(e, id) {
         e.preventDefault();
-        setUpdateText("");
-        await axios.put("http://localhost:8080/", { todo_id: id, task: updateText });
-        await getTodos();
-    };
+        try {
+            setUpdateText("");
+            await axios.put("https://16.171.68.89/api", { todo_id: id, task: updateText });
+            await getTodos();
+        } catch (err) {
+            setError("Failed to update todo: " + err.message);
+        }
+    }
 
-    // Delete todo
-    const handleDelete = async (e, id) => {
+    async function handleDelete(e, id) {
         e.preventDefault();
-        await axios.delete("http://localhost:8080/", { data: { todo_id: id } });
-        await getTodos();
-    };
+        try {
+            await axios.delete("https://16.171.68.89/api", { data: { todo_id: id } });
+            await getTodos();
+        } catch (err) {
+            setError("Failed to delete todo: " + err.message);
+        }
+    }
 
-    // Enable edit mode
-    const handleEdit = (e, id) => {
+    function handleEdit(e, id) {
         e.preventDefault();
-        const todosArr = [...todos];
-        const index = todosArr.findIndex((todo) => todo.id === id);
-        todosArr[index].isInEditingMode = true;
-        setUpdateText(todosArr[index].text);
-    };
+        var todos_arr = [...todos];
+        var index = todos_arr.indexOf(todos_arr.find(function (todo) {
+            return todo.id === id;
+        }));
+        todos_arr[index].isInEditingMode = true;
+        setUpdateText(todos_arr[index].text);
+    }
 
-    // Add new todo
-    const handleSubmit = async (e) => {
+    //create
+    async function handleSubmit(e) {
         e.preventDefault();
-        setText("");
-        setBtnAddDisabled(true);
-        await axios.post("http://localhost:8080/", { task: text });
-        await getTodos();
-    };
+        console.log("Submitting new todo with text:", text);
+        try {
+            setText("");
+            setBtnAddDisabled(true);
+            const response = await axios.post("https://16.171.68.89/api", { task: text });
+            console.log("POST response:", response.status, response.data);
+            await getTodos();
+        } catch (err) {
+            setError("Failed to add todo: " + err.message);
+        }
+    }
 
-    // Fetch todos on mount
+    //read
     useEffect(() => {
         getTodos();
     }, []);
 
-    // Fetch todos from API
-    const getTodos = async () => {
-        const { data } = await axios.get("https://github.com/DevOpsGroupCA/DevOpsApplication/blob/main/crud-todos-backend/app.js:8080");
-        const formattedData = data.todos.map((todo) => ({
-            text: todo.task,
-            id: todo.id,
-            isInEditingMode: false,
-        }));
-        setTodos(formattedData);
+    const getTodos = async function () {
+        try {
+            console.log("Fetching todos...");
+            var data = await axios.get("https://16.171.68.89/api");
+            console.log("GET response:", data.data);
+            if (!data.data.todos || !Array.isArray(data.data.todos)) {
+                console.log("No todos found or invalid format:", data.data);
+                setTodos([]);
+                setError("");
+                return;
+            }
+            var formattedData = data.data.todos.map(function (todo) {
+                return {
+                    text: todo.task,
+                    id: todo.id,
+                    isInEditingMode: false
+                };
+            });
+            console.log("Formatted todos:", formattedData);
+            setTodos(formattedData);
+            setError("");
+        } catch (err) {
+            setError("Failed to fetch todos: " + err.message);
+        }
     };
 
     return (
-        <div className="todos-container">
-            <h1 className="todos-title">My Todo List</h1>
-            <div className="input-section">
-                <input
-                    type="text"
-                    value={text}
-                    onChange={handleInput}
-                    className="todo-input"
-                    placeholder="Add a new todo..."
-                />
-                <button
-                    onClick={handleSubmit}
-                    disabled={btnAddDisabled}
-                    className="add-button"
-                >
-                    Add Todo
-                </button>
-            </div>
-            <ul className="todos-list">
-                {todos.map((todo, index) => (
-                    <li key={index} className="todo-item">
-                        {todo.isInEditingMode ? (
-                            <>
-                                <Todo
-                                    todo={todo}
-                                    handleUpdateText={handleUpdateText}
-                                    updateText={updateText}
-                                />
-                                <button
-                                    onClick={(e) => handleUpdate(e, todo.id)}
-                                    disabled={btnEditDisabled}
-                                    className="done-button"
-                                >
-                                    Done
-                                </button>
-                            </>
-                        ) : (
-                            <>
-                                <Todo
-                                    todo={todo}
-                                    handleUpdateText={handleUpdateText}
-                                    updateText={updateText}
-                                />
-                                <button
-                                    onClick={(e) => handleDelete(e, todo.id)}
-                                    className="delete-button"
-                                >
-                                    Delete
-                                </button>
-                                <button
-                                    onClick={(e) => handleEdit(e, todo.id)}
-                                    className="edit-button"
-                                >
-                                    Edit
-                                </button>
-                            </>
-                        )}
-                    </li>
-                ))}
+        <div>
+            {error && <div style={{ color: "red" }}>{error}</div>}
+            <input value={text} onChange={handleInput} />
+            <button onClick={handleSubmit} disabled={btnAddDisabled}>Add Todo</button>
+            <ul>
+                {todos.map(function (i, index) {
+                    if (i.isInEditingMode) {
+                        return (
+                            <li key={index}>
+                                <Todo todo={todos[index]} handleUpdateText={handleUpdateText} updateText={updateText} />
+                                <button onClick={function (e) {
+                                    handleUpdate(e, i.id);
+                                }} disabled={btnEditDisabled}>Done updating</button>
+                            </li>
+                        );
+                    } else {
+                        return (
+                            <li key={index}>
+                                <Todo todo={todos[index]} handleUpdateText={handleUpdateText} updateText={updateText} />
+                                <button onClick={function (e) {
+                                    handleDelete(e, i.id);
+                                }}>Delete</button>
+                                <button onClick={function (e) {
+                                    handleEdit(e, i.id);
+                                }}>Update Todo</button>
+                            </li>
+                        );
+                    }
+                })}
             </ul>
         </div>
     );
