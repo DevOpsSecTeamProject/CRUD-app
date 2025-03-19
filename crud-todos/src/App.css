@@ -36,3 +36,147 @@
     transform: rotate(360deg);
   }
 }
+
+/* General Styles */
+body {
+  font-family: 'Arial', sans-serif;
+  background-color: #f4f7fa;
+  margin: 0;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.app-container {
+  width: 100%;
+  max-width: 600px;
+}
+
+/* Todo Container */
+.todos-container {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.todos-title {
+  color: #2c3e50;
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 24px;
+}
+
+/* Input Section */
+.input-section {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.todo-input {
+  flex: 1;
+  padding: 10px;
+  font-size: 16px;
+  border: 2px solid #ddd;
+  border-radius: 5px;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+.todo-input:focus {
+  border-color: #3498db;
+}
+
+.add-button {
+  padding: 10px 20px;
+  background-color: #2ecc71;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.add-button:hover {
+  background-color: #27ae60;
+}
+
+.add-button:disabled {
+  background-color: #95d5b2;
+  cursor: not-allowed;
+}
+
+/* Todo List */
+.todos-list {
+  list-style: none;
+  padding: 0;
+}
+
+.todo-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+  transition: background-color 0.3s;
+}
+
+.todo-item:hover {
+  background-color: #f9f9f9;
+}
+
+.todo-text {
+  flex: 1;
+  font-size: 16px;
+  color: #34495e;
+}
+
+.todo-input-wrapper .todo-input {
+  width: 100%;
+  margin-right: 10px;
+}
+
+.edit-button,
+.delete-button,
+.done-button {
+  padding: 5px 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.edit-button {
+  background-color: #3498db;
+  color: white;
+}
+
+.edit-button:hover {
+  background-color: #2980b9;
+}
+
+.delete-button {
+  background-color: #e74c3c;
+  color: white;
+}
+
+.delete-button:hover {
+  background-color: #c0392b;
+}
+
+.done-button {
+  background-color: #2ecc71;
+  color: white;
+}
+
+.done-button:hover {
+  background-color: #27ae60;
+}
+
+.done-button:disabled {
+  background-color: #95d5b2;
+  cursor: not-allowed;
+}
