@@ -95,7 +95,7 @@ function TodosList(params) {
 
     return (
         <div className="todos-container">
-            <h1 className="todos-title">My Todo List</h1>
+            <h1 className="todos-title">My To-Do List</h1>
             {error && <div style={{ color: "red" }}>{error}</div>}
             <div className="input-section">
                 <input
