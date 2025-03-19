@@ -1,0 +1,64 @@
+version: 2.1
+jobs:
+  build:
+    docker:
+      - image: cimg/node:20.11
+    steps:
+      - checkout
+      - run:
+          name: Install Frontend Dependencies
+          command: |
+            cd crud-todos
+            npm install
+      - run:
+          name: Build Frontend
+          command: |
+            cd crud-todos
+            npm run build
+      - run:
+          name: Install Backend Dependencies
+          command: |
+            cd crud-todos-backend
+            npm install
+      - run:
+          name: Archive Frontend Build
+          command: |
+            tar -czf frontend-build.tar.gz -C crud-todos/build .
+      - run:
+          name: Archive Backend
+          command: |
+            tar -czf backend.tar.gz -C crud-todos-backend .
+      - persist_to_workspace:
+          root: .
+          paths:
+            - frontend-build.tar.gz
+            - backend.tar.gz
+  deploy:
+    docker:
+      - image: cimg/node:20.11
+    steps:
+      - attach_workspace:
+          at: .
+      - add_ssh_keys:
+          fingerprints:
+            - "SHA256:1m5OosxpQ/CFVCCcVXsD49TO13ZzZQPxnEBkNZyscUY"
+      - run:
+          name: Deploy to EC2
+          command: |
+            ssh -o StrictHostKeyChecking=no ubuntu@16.171.68.89 "mkdir -p /home/ubuntu/crud-app/crud-todos"
+            ssh -o StrictHostKeyChecking=no ubuntu@16.171.68.89 "mkdir -p /home/ubuntu/crud-app/crud-todos-backend"
+            scp -o StrictHostKeyChecking=no frontend-build.tar.gz ubuntu@16.171.68.89:/home/ubuntu/crud-app/
+            scp -o StrictHostKeyChecking=no backend.tar.gz ubuntu@16.171.68.89:/home/ubuntu/crud-app/
+            ssh -o StrictHostKeyChecking=no ubuntu@16.171.68.89 "tar -xzf /home/ubuntu/crud-app/frontend-build.tar.gz -C /home/ubuntu/crud-app/crud-todos/"
+            ssh -o StrictHostKeyChecking=no ubuntu@16.171.68.89 "tar -xzf /home/ubuntu/crud-app/backend.tar.gz -C /home/ubuntu/crud-app/crud-todos-backend/"
+            ssh -o StrictHostKeyChecking=no ubuntu@16.171.68.89 "cd /home/ubuntu/crud-app/crud-todos-backend && npm install && pm2 restart www || pm2 start app.js --name www"
+workflows:
+  build-and-deploy:
+    jobs:
+      - build
+      - deploy:
+          requires:
+            - build
+          filters:
+            branches:
+              only: main
