@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useState, useEffect } from "react";
 import Todo from "./Todo";
-
+ 
 function TodosList(params) {
     const [todos, setTodos] = useState([]);
     const [text, setText] = useState("");
@@ -9,19 +9,19 @@ function TodosList(params) {
     const [btnAddDisabled, setBtnAddDisabled] = useState(true);
     const [btnEditDisabled, setBtnEditDisabled] = useState(false);
     const [error, setError] = useState("");
-
+ 
     function handleInput(e) {
         e.preventDefault();
         setText(e.target.value);
         setBtnAddDisabled(e.target.value.length === 0);
     }
-
+ 
     function handleUpdateText(e) {
         e.preventDefault();
         setUpdateText(e.target.value);
         setBtnEditDisabled(e.target.value.length === 0);
     }
-
+ 
     async function handleUpdate(e, id) {
         e.preventDefault();
         try {
@@ -32,7 +32,7 @@ function TodosList(params) {
             setError("Failed to update todo: " + err.message);
         }
     }
-
+ 
     async function handleDelete(e, id) {
         e.preventDefault();
         try {
@@ -42,7 +42,7 @@ function TodosList(params) {
             setError("Failed to delete todo: " + err.message);
         }
     }
-
+ 
     function handleEdit(e, id) {
         e.preventDefault();
         var todos_arr = [...todos];
@@ -71,7 +71,7 @@ function TodosList(params) {
     useEffect(() => {
         getTodos();
     }, []);
-
+ 
     const getTodos = async function () {
         try {
             console.log("Fetching todos...");
@@ -92,7 +92,7 @@ function TodosList(params) {
             setError("Failed to fetch todos: " + err.message);
         }
     };
-
+ 
     return (
         <div className="todos-container">
             <h1 className="todos-title">My To-Do List</h1>
@@ -109,36 +109,41 @@ function TodosList(params) {
                     Add Todo
                 </button>
             </div>
-            <ul className="todos-list">
-                {todos.map((todo) => (
-                    <li key={todo.id} className="todo-item">
-                        {todo.isInEditingMode ? (
-                            <>
-                                <Todo todo={todo} handleUpdateText={handleUpdateText} updateText={updateText} />
-                                <button
-                                    onClick={(e) => handleUpdate(e, todo.id)}
-                                    disabled={btnEditDisabled}
-                                    className="done-button"
-                                >
-                                    Done
-                                </button>
-                            </>
-                        ) : (
-                            <>
-                                <Todo todo={todo} handleUpdateText={handleUpdateText} updateText={updateText} />
-                                <button onClick={(e) => handleDelete(e, todo.id)} className="delete-button">
-                                    Delete
-                                </button>
-                                <button onClick={(e) => handleEdit(e, todo.id)} className="edit-button">
-                                    Edit
-                                </button>
-                            </>
-                        )}
-                    </li>
-                ))}
-            </ul>
+                <ul className="todos-list">
+                    {todos.map((todo) => (
+                        <li key={todo.id} className="todo-item">
+                            <div className="todo-content">
+                                {todo.isInEditingMode ? (
+                                    <Todo todo={todo} handleUpdateText={handleUpdateText} updateText={updateText} />
+                                        ) : (
+                                    <Todo todo={todo} handleUpdateText={handleUpdateText} updateText={updateText} />
+                                )}
+                            </div>
+                            <div className="todo-actions">
+                                {todo.isInEditingMode ? (
+                                    <button
+                                        onClick={(e) => handleUpdate(e, todo.id)}
+                                        disabled={btnEditDisabled}
+                                        className="done-button"
+                                        >
+                                        Done
+                                    </button>
+                                    ) : (
+                                    <>
+                                    <button onClick={(e) => handleDelete(e, todo.id)} className="delete-button">
+                                            Delete
+                                    </button>
+                                    <button onClick={(e) => handleEdit(e, todo.id)} className="edit-button">
+                                            Edit
+                                    </button>
+                                    </>
+                                )}
+                            </div>
+                        </li>
+                    ))}
+                </ul>
         </div>
     );
 }
-
+ 
 export default TodosList;
