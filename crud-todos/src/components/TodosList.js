@@ -53,7 +53,7 @@ function TodosList(params) {
             setUpdateText(todos_arr[index].text);
         }
     }
- 
+
     async function handleSubmit(e) {
         e.preventDefault();
         console.log("Submitting new todo with text:", text);
@@ -67,7 +67,7 @@ function TodosList(params) {
             setError("Failed to add todo: " + err.message);
         }
     }
- 
+
     useEffect(() => {
         getTodos();
     }, []);
