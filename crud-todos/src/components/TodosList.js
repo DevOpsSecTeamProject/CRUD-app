@@ -27,7 +27,7 @@ function TodosList(params) {
         try {
             await axios.put("https://16.171.68.89/api", { todo_id: id, task: updateText });
             await getTodos();
-            setUpdateText("");
+            setUpdateText(""); 
         } catch (err) {
             setError("Failed to update todo: " + err.message);
         }
@@ -49,7 +49,7 @@ function TodosList(params) {
         var index = todos_arr.findIndex(todo => todo.id === id);
         if (index !== -1) {
             todos_arr[index].isInEditingMode = true;
-            setTodos([...todos_arr]);
+            setTodos([...todos_arr]); 
             setUpdateText(todos_arr[index].text);
         }
     }
@@ -61,17 +61,17 @@ function TodosList(params) {
             setError("");
             setText("");
             setBtnAddDisabled(true);
-            await axios.post("https://16.171.68 riveting/api", { task: text });
+            await axios.post("https://16.171.68.89/api", { task: text });
             await getTodos();
         } catch (err) {
             setError("Failed to add todo: " + err.message);
         }
     }
 
-    // Новий обробник для натискання Enter
+   
     const handleKeyDown = (e) => {
         if (e.key === "Enter" && !btnAddDisabled) {
-            handleSubmit(e); 
+            handleSubmit(e);
         }
     };
 
