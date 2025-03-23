@@ -20,7 +20,18 @@ function TodosList() {
         try {
             console.log("Updating todo:", { id, updatedText });
             await axios.put("https://16.171.68.89/api", { todo_id: id, task: updatedText });
+            const todos_arr = [...todos];
+            const index = todos_arr.findIndex(todo => todo.id === id);
+            if (index !== -1) {
+                todos_arr[index].isInEditingMode = false;
+                setTodos([...todos_arr]);
+            }
             await getTodos();
+            setEditedTexts(prev => {
+                const newEdited = { ...prev };
+                delete newEdited[id];
+                return newEdited;
+            });
         } catch (err) {
             setError("Failed to update todo: " + err.message);
             console.error("Update error:", err);
@@ -75,7 +86,8 @@ function TodosList() {
     };
 
     const handleTextChange = (id, newText) => {
-        setEditedTexts(prev => ({ ...prev, [id]: newText })); 
+        setEditedTexts(prev => ({ ...prev, [id]: newText }));
+        console.log("Edited texts updated:", { ...editedTexts, [id]: newText });
     };
 
     useEffect(() => {
@@ -94,7 +106,7 @@ function TodosList() {
             }
             const formattedData = data.data.todos.map(todo => ({
                 text: todo.task,
-                id: todo.todo_id,
+                id: todo.id, 
                 isInEditingMode: false
             }));
             setTodos(formattedData);
@@ -130,7 +142,7 @@ function TodosList() {
                             <Todo
                                 todo={todo}
                                 handleUpdate={handleUpdate}
-                                onTextChange={(newText) => handleTextChange(todo.id, newText)}
+                                onTextChange={handleTextChange}
                             />
                         </div>
                         <div className="todo-actions">

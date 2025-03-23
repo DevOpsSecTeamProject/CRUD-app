@@ -4,19 +4,22 @@ function Todo({ todo, handleUpdate, onTextChange }) {
     const [editText, setEditText] = useState(todo.text);
 
     const handleChange = (e) => {
-        setEditText(e.target.value);
-        onTextChange(e.target.value);
+        const newText = e.target.value;
+        setEditText(newText);
+        onTextChange(todo.id, newText);
+        console.log("Text changed for id", todo.id, "to:", newText);
     };
 
     const handleKeyDown = (e) => {
         if (e.key === "Enter") {
+            console.log("Saving via Enter for id", todo.id, ":", editText);
             handleUpdate(e, todo.id, editText);
         }
     };
 
-    if (todo.isInEditingMode) {
-        return (
-            <span>
+    return (
+        <span>
+            {todo.isInEditingMode ? (
                 <input
                     value={editText}
                     onChange={handleChange}
@@ -24,11 +27,11 @@ function Todo({ todo, handleUpdate, onTextChange }) {
                     className="todo-edit-input"
                     autoFocus
                 />
-            </span>
-        );
-    } else {
-        return <span>{todo.text}</span>;
-    }
+            ) : (
+                todo.text
+            )}
+        </span>
+    );
 }
 
 export default Todo;
