@@ -4,7 +4,6 @@ var sqlite = require("better-sqlite3");
 
 const db = new sqlite('database.db', { verbose: console.log });
 
-
 db.prepare(`
     CREATE TABLE IF NOT EXISTS todos (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -12,20 +11,12 @@ db.prepare(`
     )
 `).run();
 
-/** create
- * @openapi
- * /:
- *   post:
- *     description: 'Task required in the body of the request e.g., {task: "Walk the cat"}'
- *     responses:
- *       201:
- *         description: Returns a blank object.
- */
 router.post('/', function (req, res, next) {
     try {
         console.log("Received POST request with task:", req.body.task);
-        db.prepare('INSERT INTO todos (task) VALUES (?)').run(req.body.task);
-        console.log("Task inserted successfully");
+        const stmt = db.prepare('INSERT INTO todos (task) VALUES (?)');
+        const result = stmt.run(req.body.task);
+        console.log("Task inserted successfully with id:", result.lastInsertRowid);
         res.status(201).json({});
     } catch (err) {
         console.error("Error inserting task:", err.message);
@@ -33,41 +24,29 @@ router.post('/', function (req, res, next) {
     }
 });
 
-/** read
- * @openapi
- * /:
- *   get:
- *     description: No inputs required
- *     responses:
- *       200:
- *         description: Returns an object of todos.
- */
 router.get('/', function (req, res, next) {
     try {
         console.log("Fetching todos from database...");
-        var todos = db.prepare("SELECT * FROM todos").all();
+        const todos = db.prepare("SELECT * FROM todos").all();
         console.log("Todos fetched:", todos);
-        res.json({ todos: todos });
+        res.json({ todos });
     } catch (err) {
         console.error("Error fetching todos:", err.message);
         res.status(500).json({ error: "Failed to fetch todos" });
     }
 });
 
-/** update
- * @openapi
- * /:
- *   put:
- *     description: "ID and task required in the body of the request e.g., {todo_id: 1, task: "Get food"}"
- *     responses:
- *       204:
- *         description: Returns a blank object.
- */
 router.put('/', function (req, res, next) {
     try {
-        console.log("Received PUT request with body:", req.body);
-        db.prepare('UPDATE todos SET task = ? WHERE id = ?').run(req.body.task, req.body.todo_id);
-        console.log("Task updated successfully");
+        const { todo_id, task } = req.body;
+        console.log("Received PUT request with body:", { todo_id, task });
+        const stmt = db.prepare('UPDATE todos SET task = ? WHERE id = ?');
+        const result = stmt.run(task, todo_id);
+        if (result.changes === 0) {
+            console.log("No task updated, possibly invalid id:", todo_id);
+            return res.status(404).json({ error: "Task not found" });
+        }
+        console.log("Task updated successfully for id:", todo_id);
         res.status(204).json({});
     } catch (err) {
         console.error("Error updating task:", err.message);
@@ -75,22 +54,17 @@ router.put('/', function (req, res, next) {
     }
 });
 
-/** delete
- * @openapi
- * /:
- *   delete:
- *     description: "ID data required in the body of the request e.g., {data: {todo_id: 1}}"
- *     responses:
- *       204:
- *         description: Returns a blank object.
- */
 router.delete('/', function (req, res, next) {
     try {
-        // Виправлення: Отримуємо todo_id із req.body.data.todo_id
         const todoId = req.body.data ? req.body.data.todo_id : req.body.todo_id;
         console.log("Received DELETE request with todo_id:", todoId);
-        db.prepare('DELETE FROM todos WHERE id = ?').run(todoId);
-        console.log("Task deleted successfully");
+        const stmt = db.prepare('DELETE FROM todos WHERE id = ?');
+        const result = stmt.run(todoId);
+        if (result.changes === 0) {
+            console.log("No task deleted, possibly invalid id:", todoId);
+            return res.status(404).json({ error: "Task not found" });
+        }
+        console.log("Task deleted successfully for id:", todoId);
         res.status(204).json({});
     } catch (err) {
         console.error("Error deleting task:", err.message);
