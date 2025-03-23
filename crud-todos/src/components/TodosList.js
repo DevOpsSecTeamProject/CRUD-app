@@ -115,7 +115,13 @@ function TodosList() {
                         <div className="todo-actions">
                             {todo.isInEditingMode ? (
                                 <button
-                                    onClick={(e) => handleUpdate(e, todo.id, todo.text)} 
+                                    onClick={(e) =>
+                                        handleUpdate(
+                                            e,
+                                            todo.id,
+                                            document.querySelector(`#todo-${todo.id} input`).value
+                                        )
+                                    }
                                     className="done-button"
                                 >
                                     Done
