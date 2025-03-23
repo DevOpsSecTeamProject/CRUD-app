@@ -9,7 +9,7 @@ function Todo({ todo, handleUpdate }) {
 
     const handleKeyDown = (e) => {
         if (e.key === "Enter") {
-            handleUpdate(e, todo.id, editText);
+            handleUpdate(e, todo.id, editText); 
         }
     };
 
@@ -17,7 +17,6 @@ function Todo({ todo, handleUpdate }) {
         return (
             <span>
                 <input
-                    id={`todo-${todo.id}`} 
                     value={editText}
                     onChange={handleChange}
                     onKeyDown={handleKeyDown}
