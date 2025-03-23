@@ -17,20 +17,25 @@ function TodosList() {
     async function handleUpdate(e, id, updatedText) {
         e.preventDefault();
         try {
+            console.log("Updating todo:", { id, updatedText });
             await axios.put("https://16.171.68.89/api", { todo_id: id, task: updatedText });
             await getTodos();
         } catch (err) {
             setError("Failed to update todo: " + err.message);
+            console.error("Update error:", err);
         }
     }
 
     async function handleDelete(e, id) {
         e.preventDefault();
         try {
-            await axios.delete("https://16.171.68.89/api", { data: { todo_id: id } });
+            console.log("Deleting todo with id:", id);
+            const response = await axios.delete("https://16.171.68.89/api", { data: { todo_id: id } });
+            console.log("Delete response:", response.data);
             await getTodos();
         } catch (err) {
             setError("Failed to delete todo: " + err.message);
+            console.error("Delete error:", err);
         }
     }
 
@@ -39,8 +44,10 @@ function TodosList() {
         const todos_arr = [...todos];
         const index = todos_arr.findIndex(todo => todo.id === id);
         if (index !== -1) {
+            console.log("Editing todo with id:", id);
             todos_arr[index].isInEditingMode = true;
             setTodos([...todos_arr]);
+            console.log("Updated todos after edit:", todos_arr);
         }
     }
 
@@ -55,6 +62,7 @@ function TodosList() {
             await getTodos();
         } catch (err) {
             setError("Failed to add todo: " + err.message);
+            console.error("Submit error:", err);
         }
     }
 
@@ -72,20 +80,23 @@ function TodosList() {
         try {
             console.log("Fetching todos...");
             const data = await axios.get("https://16.171.68.89/api");
+            console.log("Raw API response:", data.data);
             if (!data.data.todos || !Array.isArray(data.data.todos)) {
                 setTodos([]);
-                setError("");
+                setError("No todos found or invalid data");
                 return;
             }
             const formattedData = data.data.todos.map(todo => ({
                 text: todo.task,
-                id: todo.todo_id, 
+                id: todo.todo_id,
                 isInEditingMode: false
             }));
             setTodos(formattedData);
             setError("");
+            console.log("Formatted todos:", formattedData);
         } catch (err) {
             setError("Failed to fetch todos: " + err.message);
+            console.error("Fetch error:", err);
         }
     };
 
@@ -107,38 +118,35 @@ function TodosList() {
                 </button>
             </div>
             <ul className="todos-list">
-                {todos.map((todo) => (
-                    <li key={todo.id} className="todo-item">
-                        <div className="todo-content">
-                            <Todo todo={todo} handleUpdate={handleUpdate} />
-                        </div>
-                        <div className="todo-actions">
-                            {todo.isInEditingMode ? (
-                                <button
-                                    onClick={(e) =>
-                                        handleUpdate(
-                                            e,
-                                            todo.id,
-                                            document.querySelector(`#todo-${todo.id} input`).value
-                                        )
-                                    }
-                                    className="done-button"
-                                >
-                                    Done
-                                </button>
-                            ) : (
-                                <>
-                                    <button onClick={(e) => handleDelete(e, todo.id)} className="delete-button">
-                                        Delete
+                {todos.map((todo) => {
+                    const [editText, setEditText] = useState(todo.text); 
+                    return (
+                        <li key={todo.id} className="todo-item">
+                            <div className="todo-content">
+                                <Todo todo={todo} handleUpdate={handleUpdate} />
+                            </div>
+                            <div className="todo-actions">
+                                {todo.isInEditingMode ? (
+                                    <button
+                                        onClick={(e) => handleUpdate(e, todo.id, editText)}
+                                        className="done-button"
+                                    >
+                                        Done
                                     </button>
-                                    <button onClick={(e) => handleEdit(e, todo.id)} className="edit-button">
-                                        Edit
-                                    </button>
-                                </>
-                            )}
-                        </div>
-                    </li>
-                ))}
+                                ) : (
+                                    <>
+                                        <button onClick={(e) => handleDelete(e, todo.id)} className="delete-button">
+                                            Delete
+                                        </button>
+                                        <button onClick={(e) => handleEdit(e, todo.id)} className="edit-button">
+                                            Edit
+                                        </button>
+                                    </>
+                                )}
+                            </div>
+                        </li>
+                    );
+                })}
             </ul>
         </div>
     );
