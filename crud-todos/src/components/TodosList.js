@@ -7,6 +7,7 @@ function TodosList() {
     const [text, setText] = useState("");
     const [btnAddDisabled, setBtnAddDisabled] = useState(true);
     const [error, setError] = useState("");
+    const [editedTexts, setEditedTexts] = useState({});
 
     function handleInput(e) {
         e.preventDefault();
@@ -47,6 +48,7 @@ function TodosList() {
             console.log("Editing todo with id:", id);
             todos_arr[index].isInEditingMode = true;
             setTodos([...todos_arr]);
+            setEditedTexts(prev => ({ ...prev, [id]: todos_arr[index].text }));
             console.log("Updated todos after edit:", todos_arr);
         }
     }
@@ -70,6 +72,10 @@ function TodosList() {
         if (e.key === "Enter" && !btnAddDisabled) {
             handleSubmit(e);
         }
+    };
+
+    const handleTextChange = (id, newText) => {
+        setEditedTexts(prev => ({ ...prev, [id]: newText })); 
     };
 
     useEffect(() => {
@@ -118,35 +124,36 @@ function TodosList() {
                 </button>
             </div>
             <ul className="todos-list">
-                {todos.map((todo) => {
-                    const [editText, setEditText] = useState(todo.text); 
-                    return (
-                        <li key={todo.id} className="todo-item">
-                            <div className="todo-content">
-                                <Todo todo={todo} handleUpdate={handleUpdate} />
-                            </div>
-                            <div className="todo-actions">
-                                {todo.isInEditingMode ? (
-                                    <button
-                                        onClick={(e) => handleUpdate(e, todo.id, editText)}
-                                        className="done-button"
-                                    >
-                                        Done
+                {todos.map((todo) => (
+                    <li key={todo.id} className="todo-item">
+                        <div className="todo-content">
+                            <Todo
+                                todo={todo}
+                                handleUpdate={handleUpdate}
+                                onTextChange={(newText) => handleTextChange(todo.id, newText)}
+                            />
+                        </div>
+                        <div className="todo-actions">
+                            {todo.isInEditingMode ? (
+                                <button
+                                    onClick={(e) => handleUpdate(e, todo.id, editedTexts[todo.id] || todo.text)}
+                                    className="done-button"
+                                >
+                                    Done
+                                </button>
+                            ) : (
+                                <>
+                                    <button onClick={(e) => handleDelete(e, todo.id)} className="delete-button">
+                                        Delete
                                     </button>
-                                ) : (
-                                    <>
-                                        <button onClick={(e) => handleDelete(e, todo.id)} className="delete-button">
-                                            Delete
-                                        </button>
-                                        <button onClick={(e) => handleEdit(e, todo.id)} className="edit-button">
-                                            Edit
-                                        </button>
-                                    </>
-                                )}
-                            </div>
-                        </li>
-                    );
-                })}
+                                    <button onClick={(e) => handleEdit(e, todo.id)} className="edit-button">
+                                        Edit
+                                    </button>
+                                </>
+                            )}
+                        </div>
+                    </li>
+                ))}
             </ul>
         </div>
     );
