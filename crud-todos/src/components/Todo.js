@@ -1,17 +1,33 @@
-function Todo(props) {
+import { useState } from "react";
 
-    if (props.todo.isInEditingMode) {
+function Todo({ todo, handleUpdate }) {
+    const [editText, setEditText] = useState(todo.text);
+
+    const handleChange = (e) => {
+        setEditText(e.target.value);
+    };
+
+    const handleKeyDown = (e) => {
+        if (e.key === "Enter") {
+            handleUpdate(e, todo.id, editText);
+        }
+    };
+
+    if (todo.isInEditingMode) {
         return (
             <span>
-                <input value={props.updateText} onChange={props.handleUpdateText} />
+                <input
+                    id={`todo-${todo.id}`} 
+                    value={editText}
+                    onChange={handleChange}
+                    onKeyDown={handleKeyDown}
+                    className="todo-edit-input"
+                    autoFocus
+                />
             </span>
         );
     } else {
-        return (
-            <span>
-                {props.todo.text}
-            </span>
-        );
+        return <span>{todo.text}</span>;
     }
 }
 

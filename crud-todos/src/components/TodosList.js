@@ -2,12 +2,10 @@ import axios from "axios";
 import { useState, useEffect } from "react";
 import Todo from "./Todo";
 
-function TodosList(params) {
+function TodosList() {
     const [todos, setTodos] = useState([]);
     const [text, setText] = useState("");
-    const [updateText, setUpdateText] = useState("");
     const [btnAddDisabled, setBtnAddDisabled] = useState(true);
-    const [btnEditDisabled, setBtnEditDisabled] = useState(false);
     const [error, setError] = useState("");
 
     function handleInput(e) {
@@ -16,18 +14,11 @@ function TodosList(params) {
         setBtnAddDisabled(e.target.value.length === 0);
     }
 
-    function handleUpdateText(e) {
-        e.preventDefault();
-        setUpdateText(e.target.value);
-        setBtnEditDisabled(e.target.value.length === 0);
-    }
-
-    async function handleUpdate(e, id) {
+    async function handleUpdate(e, id, updatedText) {
         e.preventDefault();
         try {
-            await axios.put("https://16.171.68.89/api", { todo_id: id, task: updateText });
+            await axios.put("https://16.171.68.89/api", { todo_id: id, task: updatedText });
             await getTodos();
-            setUpdateText(""); 
         } catch (err) {
             setError("Failed to update todo: " + err.message);
         }
@@ -45,12 +36,11 @@ function TodosList(params) {
 
     function handleEdit(e, id) {
         e.preventDefault();
-        var todos_arr = [...todos];
-        var index = todos_arr.findIndex(todo => todo.id === id);
+        const todos_arr = [...todos];
+        const index = todos_arr.findIndex(todo => todo.id === id);
         if (index !== -1) {
             todos_arr[index].isInEditingMode = true;
-            setTodos([...todos_arr]); 
-            setUpdateText(todos_arr[index].text);
+            setTodos([...todos_arr]);
         }
     }
 
@@ -68,7 +58,6 @@ function TodosList(params) {
         }
     }
 
-   
     const handleKeyDown = (e) => {
         if (e.key === "Enter" && !btnAddDisabled) {
             handleSubmit(e);
@@ -82,13 +71,13 @@ function TodosList(params) {
     const getTodos = async function () {
         try {
             console.log("Fetching todos...");
-            var data = await axios.get("https://16.171.68.89/api");
+            const data = await axios.get("https://16.171.68.89/api");
             if (!data.data.todos || !Array.isArray(data.data.todos)) {
                 setTodos([]);
                 setError("");
                 return;
             }
-            var formattedData = data.data.todos.map(todo => ({
+            const formattedData = data.data.todos.map(todo => ({
                 text: todo.task,
                 id: todo.todo_id, 
                 isInEditingMode: false
@@ -109,7 +98,7 @@ function TodosList(params) {
                     type="text"
                     value={text}
                     onChange={handleInput}
-                    onKeyDown={handleKeyDown} 
+                    onKeyDown={handleKeyDown}
                     className="todo-input"
                     placeholder="Add a new todo..."
                 />
@@ -121,17 +110,18 @@ function TodosList(params) {
                 {todos.map((todo) => (
                     <li key={todo.id} className="todo-item">
                         <div className="todo-content">
-                            {todo.isInEditingMode ? (
-                                <Todo todo={todo} handleUpdateText={handleUpdateText} updateText={updateText} />
-                            ) : (
-                                <Todo todo={todo} handleUpdateText={handleUpdateText} updateText={updateText} />
-                            )}
+                            <Todo todo={todo} handleUpdate={handleUpdate} />
                         </div>
                         <div className="todo-actions">
                             {todo.isInEditingMode ? (
                                 <button
-                                    onClick={(e) => handleUpdate(e, todo.id)}
-                                    disabled={btnEditDisabled}
+                                    onClick={(e) =>
+                                        handleUpdate(
+                                            e,
+                                            todo.id,
+                                            document.querySelector(`#todo-${todo.id} input`).value
+                                        )
+                                    }
                                     className="done-button"
                                 >
                                     Done
