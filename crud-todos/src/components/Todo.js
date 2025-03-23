@@ -1,15 +1,16 @@
 import { useState } from "react";
 
-function Todo({ todo, handleUpdate }) {
+function Todo({ todo, handleUpdate, onTextChange }) {
     const [editText, setEditText] = useState(todo.text);
 
     const handleChange = (e) => {
         setEditText(e.target.value);
+        onTextChange(e.target.value);
     };
 
     const handleKeyDown = (e) => {
         if (e.key === "Enter") {
-            handleUpdate(e, todo.id, editText); 
+            handleUpdate(e, todo.id, editText);
         }
     };
 
