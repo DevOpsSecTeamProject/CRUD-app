@@ -6,7 +6,7 @@ const options = {
     info: {
       title: 'Todo Backend Docs',
       version: '1.0.0',
-      port: 8080
+      port: 8081
     },
   },
   apis: ['./routes/index.js'], // files containing annotations as above

@@ -22,7 +22,7 @@ try {
     console.error('Error creating table:', err.message);
 }
 
-router.post('/', function (req, res, next) {
+router.post('/todos', function (req, res, next) {
     try {
         const task = req.body.task;
         if (!task || typeof task !== 'string') {
@@ -39,7 +39,7 @@ router.post('/', function (req, res, next) {
     }
 });
 
-router.get('/', function (req, res, next) {
+router.get('/todos', function (req, res, next) {
     try {
         console.log("Fetching todos from database...");
         const todos = db.prepare("SELECT * FROM todos").all();
@@ -51,7 +51,7 @@ router.get('/', function (req, res, next) {
     }
 });
 
-router.put('/', function (req, res, next) {
+router.put('/todos', function (req, res, next) {
     try {
         const task = req.body.task;
         const todoId = req.body.todo_id;
@@ -73,7 +73,7 @@ router.put('/', function (req, res, next) {
     }
 });
 
-router.delete('/', function (req, res, next) {
+router.delete('/todos', function (req, res, next) {
     try {
         const todoId = req.body.todo_id;
         if (!todoId || isNaN(todoId)) {
