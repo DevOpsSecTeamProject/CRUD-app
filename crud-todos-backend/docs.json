@@ -3,11 +3,11 @@
 	"info": {
 		"title": "Todo Backend Docs",
 		"version": "1.0.0",
-		"port": 8081
+		"port": 8080
 	},
 	"paths": {
 		"/": {
-			
+			/* create */
 			"post": {
 				"description": "Task required in the body of the request e.g., {task: 'Walk the cat'}",
 				"responses": {
@@ -16,7 +16,7 @@
 					}
 				}
 			},
-		
+			/* read */
 			"get": {
 				"description": "No inputs required",
 				"responses": {
@@ -25,7 +25,7 @@
 					}
 				}
 			},
-			
+			/* update */
 			"put": {
 				"description": "ID and task required in the body of the request e.g., {todo_id: 1, task: 'Get food'}",
 				"responses": {
@@ -34,7 +34,7 @@
 					}
 				}
 			},
-			
+			/* delete */
 			"delete": {
 				"description": "ID data required in the body of the request e.g., {data: {todo_id: 1}}",
 				"responses": {

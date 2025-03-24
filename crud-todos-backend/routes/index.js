@@ -2,35 +2,29 @@ var express = require('express');
 var router = express.Router();
 var sqlite = require("better-sqlite3");
 
-const db = new sqlite('database.db', { verbose: console.log }, (err) => {
-    if (err) {
-        console.error('Error opening database:', err.message);
-    } else {
-        console.log('Connected to SQLite database');
-    }
-});
+const db = new sqlite('database.db', { verbose: console.log });
 
-try {
-    db.prepare(`
-        CREATE TABLE IF NOT EXISTS todos (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            task VARCHAR(255) NOT NULL
-        )
-    `).run();
-    console.log('Todos table created or already exists');
-} catch (err) {
-    console.error('Error creating table:', err.message);
-}
 
-router.post('/todos', function (req, res, next) {
+db.prepare(`
+    CREATE TABLE IF NOT EXISTS todos (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        task VARCHAR(255)
+    )
+`).run();
+
+/** create
+ * @openapi
+ * /:
+ *   post:
+ *     description: 'Task required in the body of the request e.g., {task: "Walk the cat"}'
+ *     responses:
+ *       201:
+ *         description: Returns a blank object.
+ */
+router.post('/', function (req, res, next) {
     try {
-        const task = req.body.task;
-        if (!task || typeof task !== 'string') {
-            console.log("Invalid task in POST request:", req.body.task);
-            return res.status(400).json({ error: "Task is required and must be a string" });
-        }
-        console.log("Received POST request with task:", task);
-        db.prepare('INSERT INTO todos (task) VALUES (?)').run(task);
+        console.log("Received POST request with task:", req.body.task);
+        db.prepare('INSERT INTO todos (task) VALUES (?)').run(req.body.task);
         console.log("Task inserted successfully");
         res.status(201).json({});
     } catch (err) {
@@ -39,10 +33,19 @@ router.post('/todos', function (req, res, next) {
     }
 });
 
-router.get('/todos', function (req, res, next) {
+/** read
+ * @openapi
+ * /:
+ *   get:
+ *     description: No inputs required
+ *     responses:
+ *       200:
+ *         description: Returns an object of todos.
+ */
+router.get('/', function (req, res, next) {
     try {
         console.log("Fetching todos from database...");
-        const todos = db.prepare("SELECT * FROM todos").all();
+        var todos = db.prepare("SELECT * FROM todos").all();
         console.log("Todos fetched:", todos);
         res.json({ todos: todos });
     } catch (err) {
@@ -51,20 +54,19 @@ router.get('/todos', function (req, res, next) {
     }
 });
 
-router.put('/todos', function (req, res, next) {
+/** update
+ * @openapi
+ * /:
+ *   put:
+ *     description: "ID and task required in the body of the request e.g., {todo_id: 1, task: "Get food"}"
+ *     responses:
+ *       204:
+ *         description: Returns a blank object.
+ */
+router.put('/', function (req, res, next) {
     try {
-        const task = req.body.task;
-        const todoId = req.body.todo_id;
-        if (!task || typeof task !== 'string') {
-            console.log("Invalid task in PUT request:", req.body.task);
-            return res.status(400).json({ error: "Task is required and must be a string" });
-        }
-        if (!todoId || isNaN(todoId)) {
-            console.log("Invalid todo_id in PUT request:", req.body.todo_id);
-            return res.status(400).json({ error: "Todo ID is required and must be a number" });
-        }
         console.log("Received PUT request with body:", req.body);
-        db.prepare('UPDATE todos SET task = ? WHERE id = ?').run(task, todoId);
+        db.prepare('UPDATE todos SET task = ? WHERE id = ?').run(req.body.task, req.body.todo_id);
         console.log("Task updated successfully");
         res.status(204).json({});
     } catch (err) {
@@ -73,13 +75,19 @@ router.put('/todos', function (req, res, next) {
     }
 });
 
-router.delete('/todos', function (req, res, next) {
+/** delete
+ * @openapi
+ * /:
+ *   delete:
+ *     description: "ID data required in the body of the request e.g., {data: {todo_id: 1}}"
+ *     responses:
+ *       204:
+ *         description: Returns a blank object.
+ */
+router.delete('/', function (req, res, next) {
     try {
-        const todoId = req.body.todo_id;
-        if (!todoId || isNaN(todoId)) {
-            console.log("Invalid todo_id in DELETE request:", todoId);
-            return res.status(400).json({ error: "Todo ID is required and must be a number" });
-        }
+        // Виправлення: Отримуємо todo_id із req.body.data.todo_id
+        const todoId = req.body.data ? req.body.data.todo_id : req.body.todo_id;
         console.log("Received DELETE request with todo_id:", todoId);
         db.prepare('DELETE FROM todos WHERE id = ?').run(todoId);
         console.log("Task deleted successfully");
@@ -88,13 +96,6 @@ router.delete('/todos', function (req, res, next) {
         console.error("Error deleting task:", err.message);
         res.status(500).json({ error: "Failed to delete task" });
     }
-});
-
-process.on('SIGINT', () => {
-    console.log('Closing database connection...');
-    db.close();
-    console.log('Database connection closed');
-    process.exit(0);
 });
 
 module.exports = router;
