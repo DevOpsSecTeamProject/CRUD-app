@@ -75,7 +75,7 @@ router.put('/', function (req, res, next) {
 
 router.delete('/', function (req, res, next) {
     try {
-        const todoId = req.body.data ? req.body.data.todo_id : req.body.todo_id;
+        const todoId = req.body.todo_id;
         if (!todoId || isNaN(todoId)) {
             console.log("Invalid todo_id in DELETE request:", todoId);
             return res.status(400).json({ error: "Todo ID is required and must be a number" });
@@ -90,7 +90,6 @@ router.delete('/', function (req, res, next) {
     }
 });
 
-// Закриття бази даних при завершенні роботи
 process.on('SIGINT', () => {
     console.log('Closing database connection...');
     db.close();
