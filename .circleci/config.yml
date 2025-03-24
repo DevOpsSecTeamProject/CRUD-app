@@ -45,19 +45,13 @@ jobs:
       - run:
           name: Deploy to EC2
           command: |
-            set -e
-            echo "Deploying to EC2 at $EC2_IP..."
-            ssh -o StrictHostKeyChecking=no ubuntu@$EC2_IP "sudo apt update && sudo apt install -y curl && curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - && sudo apt install -y nodejs && sudo npm install -g pm2"
-            ssh -o StrictHostKeyChecking=no ubuntu@$EC2_IP "mkdir -p /home/ubuntu/crud-app/crud-todos"
-            ssh -o StrictHostKeyChecking=no ubuntu@$EC2_IP "mkdir -p /home/ubuntu/crud-app/crud-todos-backend"
-            scp -o StrictHostKeyChecking=no frontend-build.tar.gz ubuntu@$EC2_IP:/home/ubuntu/crud-app/
-            scp -o StrictHostKeyChecking=no backend.tar.gz ubuntu@$EC2_IP:/home/ubuntu/crud-app/
-            ssh -o StrictHostKeyChecking=no ubuntu@$EC2_IP "tar -xzf /home/ubuntu/crud-app/frontend-build.tar.gz -C /home/ubuntu/crud-app/crud-todos/"
-            ssh -o StrictHostKeyChecking=no ubuntu@$EC2_IP "tar -xzf /home/ubuntu/crud-app/backend.tar.gz -C /home/ubuntu/crud-app/crud-todos-backend/"
-            ssh -o StrictHostKeyChecking=no ubuntu@$EC2_IP "sudo rm -rf /var/www/html/* && sudo cp -r /home/ubuntu/crud-app/crud-todos/* /var/www/html/ && sudo chown -R www-data:www-data /var/www/html"
-            ssh -o StrictHostKeyChecking=no ubuntu@$EC2_IP "sudo sed -i 's|proxy_pass http://localhost:8080/|proxy_pass http://localhost:8081/|' /etc/nginx/sites-available/default"
-            ssh -o StrictHostKeyChecking=no ubuntu@$EC2_IP "sudo nginx -t && sudo systemctl restart nginx"
-            ssh -o StrictHostKeyChecking=no ubuntu@$EC2_IP "cd /home/ubuntu/crud-app/crud-todos-backend && npm install && pm2 stop www || true && pm2 delete www || true && pm2 start bin/www --name www"
+            ssh -o StrictHostKeyChecking=no ubuntu@16.170.61.234 "mkdir -p /home/ubuntu/crud-app/crud-todos"
+            ssh -o StrictHostKeyChecking=no ubuntu@16.170.61.234 "mkdir -p /home/ubuntu/crud-app/crud-todos-backend"
+            scp -o StrictHostKeyChecking=no frontend-build.tar.gz ubuntu@16.170.61.234:/home/ubuntu/crud-app/
+            scp -o StrictHostKeyChecking=no backend.tar.gz ubuntu@16.170.61.234:/home/ubuntu/crud-app/
+            ssh -o StrictHostKeyChecking=no ubuntu@16.170.61.234 "tar -xzf /home/ubuntu/crud-app/frontend-build.tar.gz -C /home/ubuntu/crud-app/crud-todos/"
+            ssh -o StrictHostKeyChecking=no ubuntu@16.170.61.234 "tar -xzf /home/ubuntu/crud-app/backend.tar.gz -C /home/ubuntu/crud-app/crud-todos-backend/"
+            ssh -o StrictHostKeyChecking=no ubuntu@16.170.61.234 "cd /home/ubuntu/crud-app/crud-todos-backend && npm install && pm2 restart www || pm2 start app.js --name www"
 workflows:
   build-and-deploy:
     jobs:
