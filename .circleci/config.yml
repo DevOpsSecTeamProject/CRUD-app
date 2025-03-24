@@ -41,7 +41,7 @@ jobs:
           at: .
       - add_ssh_keys:
           fingerprints:
-            - "SHA256:1m5OosxpQ/CFVCCcVXsD49TO13ZzZQPxnEBkNZyscUY"
+            - "SHA256:m+Ex21QZsb6Guo4aAsuG3tBIcdSs612z1SOoqk9kSB0"
       - run:
           name: Deploy to EC2
           command: |
