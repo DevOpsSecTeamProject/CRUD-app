@@ -47,7 +47,7 @@ jobs:
           command: |
             set -e
             echo "Deploying to EC2 at $EC2_IP..."
-            ssh -o StrictHostKeyChecking=no ubuntu@$EC2_IP "sudo apt update && sudo apt install -y curl && curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - && sudo apt install -y nodejs && npm install -g pm2"
+            ssh -o StrictHostKeyChecking=no ubuntu@$EC2_IP "sudo apt update && sudo apt install -y curl && curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - && sudo apt install -y nodejs && sudo npm install -g pm2"
             ssh -o StrictHostKeyChecking=no ubuntu@$EC2_IP "mkdir -p /home/ubuntu/crud-app/crud-todos"
             ssh -o StrictHostKeyChecking=no ubuntu@$EC2_IP "mkdir -p /home/ubuntu/crud-app/crud-todos-backend"
             scp -o StrictHostKeyChecking=no frontend-build.tar.gz ubuntu@$EC2_IP:/home/ubuntu/crud-app/
