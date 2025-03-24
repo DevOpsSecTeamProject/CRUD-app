@@ -19,7 +19,7 @@ function TodosList() {
         e.preventDefault();
         try {
             console.log("Updating todo:", { id, updatedText });
-            await axios.put("http://13.61.122.171/api/todos", { todo_id: id, task: updatedText });
+            await axios.put("https://13.61.122.171/api/todos", { todo_id: id, task: updatedText });
             const todos_arr = [...todos];
             const index = todos_arr.findIndex(todo => todo.id === id);
             if (index !== -1) {
@@ -42,7 +42,7 @@ function TodosList() {
         e.preventDefault();
         try {
             console.log("Deleting todo with id:", id);
-            const response = await axios.delete("http://13.61.122.171/api/todos", { data: { todo_id: id } });
+            const response = await axios.delete("https://13.61.122.171/api/todos", { data: { todo_id: id } });
             console.log("Delete response:", response.data);
             await getTodos();
         } catch (err) {
@@ -71,7 +71,7 @@ function TodosList() {
             setError("");
             setText("");
             setBtnAddDisabled(true);
-            await axios.post("http://13.61.122.171/api/todos", { task: text });
+            await axios.post("https://13.61.122.171/api/todos", { task: text });
             await getTodos();
         } catch (err) {
             setError("Failed to add todo: " + err.message);
@@ -97,7 +97,7 @@ function TodosList() {
     const getTodos = async function () {
         try {
             console.log("Fetching todos...");
-            const data = await axios.get("http://13.61.122.171/api/todos");
+            const data = await axios.get("https://13.61.122.171/api/todos");
             console.log("Raw API response:", data.data);
             if (!data.data.todos || !Array.isArray(data.data.todos)) {
                 setTodos([]);
