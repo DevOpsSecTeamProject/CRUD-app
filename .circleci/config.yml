@@ -54,7 +54,7 @@ jobs:
             ssh -o StrictHostKeyChecking=no ubuntu@$EC2_IP "tar -xzf /home/ubuntu/crud-app/frontend-build.tar.gz -C /home/ubuntu/crud-app/crud-todos/"
             ssh -o StrictHostKeyChecking=no ubuntu@$EC2_IP "tar -xzf /home/ubuntu/crud-app/backend.tar.gz -C /home/ubuntu/crud-app/crud-todos-backend/"
             ssh -o StrictHostKeyChecking=no ubuntu@$EC2_IP "sudo rm -rf /var/www/html/* && sudo cp -r /home/ubuntu/crud-app/crud-todos/* /var/www/html/ && sudo chown -R www-data:www-data /var/www/html && sudo systemctl restart nginx"
-            ssh -o StrictHostKeyChecking=no ubuntu@$EC2_IP "cd /home/ubuntu/crud-app/crud-todos-backend && npm install && pm2 restart www || pm2 start bin/www --name www"
+            ssh -o StrictHostKeyChecking=no ubuntu@$EC2_IP "cd /home/ubuntu/crud-app/crud-todos-backend && npm install && pm2 stop www || true && pm2 delete www || true && pm2 start bin/www --name www"
 workflows:
   build-and-deploy:
     jobs:
