@@ -20,12 +20,15 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
+// Log all incoming requests
+app.use((req, res, next) => {
+    console.log(`Received request: ${req.method} ${req.url}`);
+    next();
+});
+
 // API routes with /api prefix
 app.use('/api', indexRouter);
 app.use('/api/users', usersRouter);
-
-// Serve static files (frontend)
-app.use(express.static('/home/ubuntu/crud-app/crud-todos'));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
