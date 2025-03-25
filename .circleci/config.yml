@@ -45,11 +45,12 @@ jobs:
       - run:
           name: Deploy to EC2
           command: |
+            ssh -o StrictHostKeyChecking=no ubuntu@13.61.122.171 "rm -rf /var/www/html/*"
             ssh -o StrictHostKeyChecking=no ubuntu@13.61.122.171 "mkdir -p /home/ubuntu/crud-app/crud-todos"
             ssh -o StrictHostKeyChecking=no ubuntu@13.61.122.171 "mkdir -p /home/ubuntu/crud-app/crud-todos-backend"
             scp -o StrictHostKeyChecking=no frontend-build.tar.gz ubuntu@13.61.122.171:/home/ubuntu/crud-app/
             scp -o StrictHostKeyChecking=no backend.tar.gz ubuntu@13.61.122.171:/home/ubuntu/crud-app/
-            ssh -o StrictHostKeyChecking=no ubuntu@13.61.122.171 "tar -xzf /home/ubuntu/crud-app/frontend-build.tar.gz -C /home/ubuntu/crud-app/crud-todos/"
+            ssh -o StrictHostKeyChecking=no ubuntu@13.61.122.171 "tar -xzf /home/ubuntu/crud-app/frontend-build.tar.gz -C /var/www/html/"
             ssh -o StrictHostKeyChecking=no ubuntu@13.61.122.171 "tar -xzf /home/ubuntu/crud-app/backend.tar.gz -C /home/ubuntu/crud-app/crud-todos-backend/"
             ssh -o StrictHostKeyChecking=no ubuntu@13.61.122.171 "cd /home/ubuntu/crud-app/crud-todos-backend && npm install && pm2 restart www || pm2 start bin/www --name www"
 workflows:
