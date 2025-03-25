@@ -97,14 +97,16 @@ function TodosList() {
     const getTodos = async function () {
         try {
             console.log("Fetching todos...");
-            const data = await axios.get("https://13.61.122.171/api/todos");
-            console.log("Raw API response:", data.data);
-            if (!data.data.todos || !Array.isArray(data.data.todos)) {
+            const response = await axios.get("https://13.61.122.171/api/todos");
+            console.log("Full response:", response);
+            console.log("Raw API response:", response.data);
+            if (!response.data.todos || !Array.isArray(response.data.todos)) {
+                console.log("Invalid data received:", response.data);
                 setTodos([]);
                 setError("No todos found or invalid data");
                 return;
             }
-            const formattedData = data.data.todos.map(todo => ({
+            const formattedData = response.data.todos.map(todo => ({
                 text: todo.task,
                 id: todo.id, 
                 isInEditingMode: false
@@ -115,6 +117,7 @@ function TodosList() {
         } catch (err) {
             setError("Failed to fetch todos: " + err.message);
             console.error("Fetch error:", err);
+            console.error("Error response:", err.response);
         }
     };
 

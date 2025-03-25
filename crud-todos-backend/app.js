@@ -23,6 +23,7 @@ app.use(cookieParser());
 // Log all incoming requests
 app.use((req, res, next) => {
     console.log(`Received request: ${req.method} ${req.url}`);
+    console.log(`Headers:`, req.headers);
     next();
 });
 
@@ -30,8 +31,9 @@ app.use((req, res, next) => {
 app.use('/api', indexRouter);
 app.use('/api/users', usersRouter);
 
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
+// Log before 404
+app.use((req, res, next) => {
+    console.log(`Route not found: ${req.method} ${req.url}`);
     next(createError(404));
 });
 
