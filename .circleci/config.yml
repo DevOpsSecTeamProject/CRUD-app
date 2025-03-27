@@ -16,6 +16,11 @@ jobs:
             cd crud-todos
             npm run build
       - run:
+          name: Run Frontend Tests
+          command: |
+            cd crud-todos
+            npm run test -- --watchAll=false
+      - run:
           name: Install Backend Dependencies
           command: |
             cd crud-todos-backend
