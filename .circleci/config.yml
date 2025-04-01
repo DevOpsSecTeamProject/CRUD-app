@@ -1,4 +1,5 @@
 version: 2.1
+
 jobs:
   build:
     docker:
@@ -7,38 +8,38 @@ jobs:
       - checkout
       - setup_remote_docker 
       - run:
-          name: install-frontend-dependencies
+          name: Install frontend dependencies
           command: |
             cd crud-todos
             npm install
       - run:
-          name: run-frontend-tests
+          name: Run frontend tests
           command: |
             cd crud-todos
             npm test -- --watchAll=false
       - run:
-          name: build-frontend
+          name: Build frontend
           command: |
             cd crud-todos
             npm run build
       - run:
-          name: install-backend-dependencies
+          name: Install backend dependencies
           command: |
             cd crud-todos-backend
             npm install
       - run:
-          name: build-and-push-docker-image
+          name: Build and push Docker image
           command: |
             cd crud-todos-backend
             echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
             docker build -t $IMAGE_NAME:latest .
             docker push $IMAGE_NAME:latest
       - run:
-          name: archive-frontend-build
+          name: Archive frontend build
           command: |
             tar -czf frontend-build.tar.gz -C crud-todos/build .
       - run:
-          name: archive-backend
+          name: Archive backend
           command: |
             tar -czf backend.tar.gz -C crud-todos-backend .
       - persist_to_workspace:
@@ -46,6 +47,7 @@ jobs:
           paths:
             - frontend-build.tar.gz
             - backend.tar.gz
+
   deploy:
     docker:
       - image: cimg/node:20.11
@@ -56,7 +58,7 @@ jobs:
           fingerprints:
             - "SHA256:m+Ex21QZsb6Guo4aAsuG3tBIcdSs612z1SOoqk9kSB0"
       - run:
-          name: deploy-to-ec2
+          name: Deploy to EC2
           command: |
             ssh -o StrictHostKeyChecking=no ubuntu@13.61.122.171 "sudo chown -R ubuntu:ubuntu /var/www/html"
             ssh -o StrictHostKeyChecking=no ubuntu@13.61.122.171 "sudo chmod -R 755 /var/www/html"
@@ -70,15 +72,12 @@ jobs:
             ssh -o StrictHostKeyChecking=no ubuntu@13.61.122.171 "docker pull $IMAGE_NAME:latest"
             ssh -o StrictHostKeyChecking=no ubuntu@13.61.122.171 "docker stop crud-todos-backend || true"
             ssh -o StrictHostKeyChecking=no ubuntu@13.61.122.171 "docker rm crud-todos-backend || true"
-            # Log what's using port 8082
-            ssh -o StrictHostKeyChecking=no ubuntu@13.61.122.171 "sudo netstat -tulnp | grep 8082 || echo 'No process on 8082 before cleanup'"
-            # Forcefully free port 8082 with delay
+            ssh -o StrictHostKeyChecking=no ubuntu@13.61.122.171 "sudo ss -tulnp | grep 8082 || echo 'No process on 8082 before cleanup'"
             ssh -o StrictHostKeyChecking=no ubuntu@13.61.122.171 "sudo fuser -k 8082/tcp || true"
-            ssh -o StrictHostKeyChecking=no ubuntu@13.61.122.171 "sleep 2"  # Wait for port release
-            # Verify port is free
-            ssh -o StrictHostKeyChecking=no ubuntu@13.61.122.171 "sudo netstat -tulnp | grep 8082 || echo 'No process on 8082 after cleanup'"
-            # Run the container
+            ssh -o StrictHostKeyChecking=no ubuntu@13.61.122.171 "sleep 2"
+            ssh -o StrictHostKeyChecking=no ubuntu@13.61.122.171 "sudo ss -tulnp | grep 8082 || echo 'No process on 8082 after cleanup'"
             ssh -o StrictHostKeyChecking=no ubuntu@13.61.122.171 "docker run -d --name crud-todos-backend -p 8082:8082 $IMAGE_NAME:latest"
+
 workflows:
   build-and-deploy:
     jobs:
