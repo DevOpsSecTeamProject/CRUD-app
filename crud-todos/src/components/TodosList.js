@@ -14,7 +14,7 @@ function TodosList() {
         setText(e.target.value);
         setBtnAddDisabled(e.target.value.length === 0);
     }
-    //handle update function
+    //handle update FUNCTION
     async function handleUpdate(e, id, updatedText) {
         e.preventDefault();
         try {
