@@ -11,13 +11,11 @@ jobs:
           command: |
             cd crud-todos
             npm install
-
       - run:
           name: run-frontend-tests
           command: |
             cd crud-todos
             npm test -- --watchAll=false
-            
       - run:
           name: build-frontend
           command: |
@@ -72,6 +70,7 @@ jobs:
             ssh -o StrictHostKeyChecking=no ubuntu@13.61.122.171 "docker pull $IMAGE_NAME:latest"
             ssh -o StrictHostKeyChecking=no ubuntu@13.61.122.171 "docker stop crud-todos-backend || true"
             ssh -o StrictHostKeyChecking=no ubuntu@13.61.122.171 "docker rm crud-todos-backend || true"
+            ssh -o StrictHostKeyChecking=no ubuntu@13.61.122.171 "sudo fuser -k 8082/tcp || true"
             ssh -o StrictHostKeyChecking=no ubuntu@13.61.122.171 "docker run -d --name crud-todos-backend -p 8082:8082 $IMAGE_NAME:latest"
 workflows:
   build-and-deploy:
