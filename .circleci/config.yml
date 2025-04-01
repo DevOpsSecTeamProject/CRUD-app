@@ -60,37 +60,14 @@ jobs:
       - run:
           name: Free up disk space on EC2
           command: |
-            ssh -o StrictHostKeyChecking=no ubuntu@13.61.122.171 << 'EOF'
-              echo 'Freeing up space...'
-              docker system prune -a -f
-              sudo apt-get autoremove -y
-              sudo apt-get clean
-              echo 'Disk cleanup completed.'
-            EOF
+            ssh -o StrictHostKeyChecking=no ubuntu@13.61.122.171 "echo 'Freeing up space...' && docker system prune -a -f && sudo apt-get autoremove -y && sudo apt-get clean && echo 'Disk cleanup completed.'"
       - run:
           name: Deploy to EC2
           command: |
-            ssh -o StrictHostKeyChecking=no ubuntu@13.61.122.171 << 'EOF'
-              sudo chown -R ubuntu:ubuntu /var/www/html
-              sudo chmod -R 755 /var/www/html
-              rm -rf /var/www/html/*
-              mkdir -p /home/ubuntu/crud-app/crud-todos
-              mkdir -p /home/ubuntu/crud-app/crud-todos-backend
-            EOF
+            ssh -o StrictHostKeyChecking=no ubuntu@13.61.122.171 "sudo chown -R ubuntu:ubuntu /var/www/html && sudo chmod -R 755 /var/www/html && rm -rf /var/www/html/* && mkdir -p /home/ubuntu/crud-app/crud-todos && mkdir -p /home/ubuntu/crud-app/crud-todos-backend"
             scp -o StrictHostKeyChecking=no frontend-build.tar.gz ubuntu@13.61.122.171:/home/ubuntu/crud-app/
             scp -o StrictHostKeyChecking=no backend.tar.gz ubuntu@13.61.122.171:/home/ubuntu/crud-app/
-            ssh -o StrictHostKeyChecking=no ubuntu@13.61.122.171 << 'EOF'
-              tar -xzf /home/ubuntu/crud-app/frontend-build.tar.gz -C /var/www/html/
-              tar -xzf /home/ubuntu/crud-app/backend.tar.gz -C /home/ubuntu/crud-app/crud-todos-backend/
-              docker pull $IMAGE_NAME:latest
-              docker stop crud-todos-backend || true
-              docker rm crud-todos-backend || true
-              sudo ss -tuln | grep 8082 || echo 'No process on 8082 before cleanup'
-              sudo fuser -k 8082/tcp || true
-              sleep 5
-              sudo ss -tuln | grep 8082 || echo 'No process on 8082 after cleanup'
-              docker run -d --name crud-todos-backend -p 8082:8082 $IMAGE_NAME:latest || (sudo systemctl restart docker && docker run -d --name crud-todos-backend -p 8082:8082 $IMAGE_NAME:latest)
-            EOF
+            ssh -o StrictHostKeyChecking=no ubuntu@13.61.122.171 "tar -xzf /home/ubuntu/crud-app/frontend-build.tar.gz -C /var/www/html/ && tar -xzf /home/ubuntu/crud-app/backend.tar.gz -C /home/ubuntu/crud-app/crud-todos-backend/ && docker pull $IMAGE_NAME:latest && docker stop crud-todos-backend || true && docker rm crud-todos-backend || true && sudo ss -tuln | grep 8082 || echo 'No process on 8082 before cleanup' && sudo fuser -k 8082/tcp || true && sleep 5 && sudo ss -tuln | grep 8082 || echo 'No process on 8082 after cleanup' && docker run -d --name crud-todos-backend -p 8082:8082 $IMAGE_NAME:latest || (sudo systemctl restart docker && docker run -d --name crud-todos-backend -p 8082:8082 $IMAGE_NAME:latest)"
 
 workflows:
   build-and-deploy:
