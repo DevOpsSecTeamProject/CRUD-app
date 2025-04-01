@@ -11,6 +11,13 @@ jobs:
           command: |
             cd crud-todos
             npm install
+
+      - run:
+          name: run-frontend-tests
+          command: |
+            cd crud-todos
+            npm test -- --watchAll=false
+            
       - run:
           name: build-frontend
           command: |
