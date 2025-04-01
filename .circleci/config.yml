@@ -58,15 +58,15 @@ jobs:
           fingerprints:
             - "SHA256:m+Ex21QZsb6Guo4aAsuG3tBIcdSs612z1SOoqk9kSB0"
       - run:
-          name: Free up disk space on EC2
-          command: |
-            ssh -o StrictHostKeyChecking=no ubuntu@13.61.122.171 << 'EOF'
-              echo "Freeing up space..."
-              docker system prune -a -f
-              sudo apt-get autoremove -y
-              sudo apt-get clean
-              echo "Disk cleanup completed."
-            EOF
+        name: Free up disk space on EC2
+        command: |
+          ssh -o StrictHostKeyChecking=no ubuntu@13.61.122.171 "
+            echo 'Freeing up space...';
+            docker system prune -a -f;
+            sudo apt-get autoremove -y;
+            sudo apt-get clean;
+            echo 'Disk cleanup completed.';
+          "
       - run:
           name: Deploy to EC2
           command: |
