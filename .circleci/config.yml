@@ -47,7 +47,6 @@ jobs:
           paths:
             - frontend-build.tar.gz
             - backend.tar.gz
-
   deploy:
     docker:
       - image: cimg/node:20.11
@@ -68,7 +67,6 @@ jobs:
             scp -o StrictHostKeyChecking=no frontend-build.tar.gz ubuntu@13.61.122.171:/home/ubuntu/crud-app/
             scp -o StrictHostKeyChecking=no backend.tar.gz ubuntu@13.61.122.171:/home/ubuntu/crud-app/
             ssh -o StrictHostKeyChecking=no ubuntu@13.61.122.171 "tar -xzf /home/ubuntu/crud-app/frontend-build.tar.gz -C /var/www/html/ && tar -xzf /home/ubuntu/crud-app/backend.tar.gz -C /home/ubuntu/crud-app/crud-todos-backend/ && docker pull $IMAGE_NAME:latest && docker stop crud-todos-backend || true && docker rm crud-todos-backend || true && sudo ss -tuln | grep 8082 || echo 'No process on 8082 before cleanup' && sudo fuser -k 8082/tcp || true && sleep 5 && sudo ss -tuln | grep 8082 || echo 'No process on 8082 after cleanup' && docker run -d --name crud-todos-backend -p 8082:8082 $IMAGE_NAME:latest || (sudo systemctl restart docker && docker run -d --name crud-todos-backend -p 8082:8082 $IMAGE_NAME:latest)"
-
 workflows:
   build-and-deploy:
     jobs:
