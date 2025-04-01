@@ -70,7 +70,14 @@ jobs:
             ssh -o StrictHostKeyChecking=no ubuntu@13.61.122.171 "docker pull $IMAGE_NAME:latest"
             ssh -o StrictHostKeyChecking=no ubuntu@13.61.122.171 "docker stop crud-todos-backend || true"
             ssh -o StrictHostKeyChecking=no ubuntu@13.61.122.171 "docker rm crud-todos-backend || true"
+            # Log what's using port 8082
+            ssh -o StrictHostKeyChecking=no ubuntu@13.61.122.171 "sudo netstat -tulnp | grep 8082 || echo 'No process on 8082 before cleanup'"
+            # Forcefully free port 8082 with delay
             ssh -o StrictHostKeyChecking=no ubuntu@13.61.122.171 "sudo fuser -k 8082/tcp || true"
+            ssh -o StrictHostKeyChecking=no ubuntu@13.61.122.171 "sleep 2"  # Wait for port release
+            # Verify port is free
+            ssh -o StrictHostKeyChecking=no ubuntu@13.61.122.171 "sudo netstat -tulnp | grep 8082 || echo 'No process on 8082 after cleanup'"
+            # Run the container
             ssh -o StrictHostKeyChecking=no ubuntu@13.61.122.171 "docker run -d --name crud-todos-backend -p 8082:8082 $IMAGE_NAME:latest"
 workflows:
   build-and-deploy:
