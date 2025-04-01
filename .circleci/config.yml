@@ -60,7 +60,7 @@ jobs:
       - run:
           name: Free up disk space on EC2
           command: |
-            ssh -o StrictHostKeyChecking=no ubuntu@13.61.122.171 << EOF
+            ssh -o StrictHostKeyChecking=no ubuntu@13.61.122.171 \<< 'EOF'
               echo 'Freeing up space...';
               docker system prune -a -f;
               sudo apt-get autoremove -y;
@@ -70,7 +70,7 @@ jobs:
       - run:
           name: Deploy to EC2
           command: |
-            ssh -o StrictHostKeyChecking=no ubuntu@13.61.122.171 << EOF
+            ssh -o StrictHostKeyChecking=no ubuntu@13.61.122.171 \<< 'EOF'
               sudo chown -R ubuntu:ubuntu /var/www/html;
               sudo chmod -R 755 /var/www/html;
               rm -rf /var/www/html/*;
